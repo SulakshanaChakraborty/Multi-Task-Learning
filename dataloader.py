@@ -38,15 +38,12 @@ class H5ImageLoader(Dataset):
       return image,{'mask':mask, 'bbox':bbox, 'classification':classification}
 
 DATA_PATH='data/train'
-
-
-t=H5ImageLoader(DATA_PATH+'/images.h5',DATA_PATH+'/masks.h5',DATA_PATH+'/bboxes.h5',DATA_PATH+'/binary.h5')
-
+t=H5ImageLoader(DATA_PATH+'/images.h5',DATA_PATH+'/masks.h5',DATA_PATH+'/bboxes.h5',DATA_PATH+'/binary.h5') #All data paths 
 dataloader = DataLoader(t, batch_size=8, shuffle=True)
 
+### Showing examples of labels
 
 fig, ax = plt.subplots()
-
 train_features, trains = next(iter(dataloader))
 #print("Feature batch shape: ", train_features.size())
 print("Labels batch shape: ",trains['mask'].size())
@@ -54,7 +51,7 @@ img = train_features[0]
 label = torch.squeeze(trains['mask'][0])
 #plt.imshow(img.to(torch.int32))
 X,Y,W,H =trains['bbox'][0]
-box = patches.Rectangle((X, Y), W, H, linewidth=1, edgecolor='b',facecolor='none')
+box = patches.Rectangle((X, Y), W, H, linewidth=1, edgecolor='b',facecolor='none') #To create the bounding box
 
 ax.imshow(img.to(torch.int32))
 ax.add_patch(box)
