@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 from torch.utils.data import Dataset, DataLoader
 import torch
 import torchvision
+import torchvision.transforms as transforms
 
 class H5ImageLoader(Dataset):
 
@@ -15,7 +16,7 @@ class H5ImageLoader(Dataset):
 
     """
 
-    def __init__(self,img_file,mask_file,bbox_file,classification_file,transform=None):
+    def __init__(self,img_file,mask_file,bbox_file,classification_file,transform):
         
         """
 
@@ -50,15 +51,21 @@ class H5ImageLoader(Dataset):
       mask=self.mask_h5[self.mask_list][idx]
       bbox=self.bbox_h5[self.bbox_list][idx]
       classification=self.classifcation_h5[self.classification_list][idx]
-
+      
+      print(self.transform)
       if self.transform:
         image=self.transform(image)
+      print(image)
+
 
       return image,{'mask':mask, 'bbox':bbox, 'classification':classification}
 
 if __name__=='__main__':
  DATA_PATH='data/train'
- t=H5ImageLoader(DATA_PATH+'/images.h5',DATA_PATH+'/masks.h5',DATA_PATH+'/bboxes.h5',DATA_PATH+'/binary.h5') #All data paths 
+ transform_ar = transforms.Compose(
+        [transforms.ToTensor(),
+        transforms.Normalize((127.5, 127.5 ,127.5), (127.5, 127.5, 127.5))])
+ t=H5ImageLoader(DATA_PATH+'/images.h5',DATA_PATH+'/masks.h5',DATA_PATH+'/bboxes.h5',DATA_PATH+'/binary.h5',transform=transform_ar) #All data paths 
  dataloader = DataLoader(t, batch_size=8, shuffle=True)
 
 ### Showing examples of labels
@@ -73,7 +80,7 @@ if __name__=='__main__':
  X,Y,W,H =trains['bbox'][0]
  box = patches.Rectangle((X, Y), W, H, linewidth=1, edgecolor='b',facecolor='none') #To create the bounding box
 
- ax.imshow(img.to(torch.int32))
+ ax.imshow(img.permute(1,2,0))
  ax.add_patch(box)
  print(f"The class is trains{trains['classification'][0]}")
  plt.show()
