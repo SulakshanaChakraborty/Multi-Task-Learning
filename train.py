@@ -21,23 +21,19 @@ trainloader = DataLoader(t, batch_size=16, shuffle=True)
 
 
 
-for epoch in range(1):  # loop over the dataset multiple times
+for epoch in range(1):  
 
         loss_ar=[]
         accuracy=[]
 
         for i, data in enumerate(trainloader, 0):
-            # get the inputs; data is a list of [inputs, labels]
+          
             inputs, labels = data
 
             inputs=inputs
             labels=labels
-            # zero the parameter gradients
-            optimizer.zero_grad()
-            
-            # forward + backward + optimize
+                
             outputs = model(inputs)
                
-            optimizer.step()
-
+        
 
