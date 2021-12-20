@@ -30,17 +30,17 @@ class Encoder(nn.Module):
 
     def forward(self,x):
 
-        print(x.shape)
+       # print(x.shape)
         x=self.layer_0(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_1(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_2(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_3(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_4(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_5(x)
 
         return x
@@ -56,7 +56,7 @@ class Decoder(nn.Module):
         self.layer_2=self.conv2d_layer_T(128,128)
         self.layer_3=self.conv2d_layer_T(128,64)
         self.layer_4=self.conv2d_layer_T(64,64)
-        self.layer_5=self.conv2d_layer_T(64,1) #CHANGE 1 to outchanels
+        self.layer_5=self.conv2d_layer_T(64,2) #CHANGE 2 to outchanels
 
 
     def conv2d_layer_T(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
@@ -70,19 +70,19 @@ class Decoder(nn.Module):
 
     def forward(self,x):
 
-        print(x.shape)
+      #  print(x.shape)
         x=self.layer_0(x)
-        print(x.shape)
+       # print(x.shape)
         x=self.layer_1(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_2(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_3(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_4(x)
-        print(x.shape)
+        #print(x.shape)
         x=self.layer_5(x)
-        print(x.shape)
+        #print(x.shape)
 
         return x
 
@@ -93,12 +93,20 @@ class Segnet(nn.Module):
         super().__init__()
 
         self.encoder= Encoder()
+        self.linear_c=nn.Linear(256,2)
+        self.linear_b=nn.Linear(256,4)
         self.decoder= Decoder()
 
     def forward(self,x):
 
-        x=self.encoder(x)
-        x=self.decoder(x)
+        enc=self.encoder(x)
+
+        c_= self.linear_c(enc)
+        b_=self.linear_b(enc)
+
+        dec=self.decoder(enc)
+
+        return c_,b_,dec
 
     
 
