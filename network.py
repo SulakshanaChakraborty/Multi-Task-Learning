@@ -94,11 +94,11 @@ class Segnet(nn.Module):
 
         self.encoder= Encoder()
         self.flat=nn.Flatten()
-        self.linear_c_0=nn.Linear(128*64*64,2)
-        #self.linear_c_1=nn.Linear(64*64,2)
+        self.linear_c_0=nn.Linear(128*64*64,64)
+        self.linear_c_1=nn.Linear(64,2)
 
-        self.linear_b_0=nn.Linear(128*64*64,4)
-      #  self.linear_b_1=nn.Linear(64*64,4)
+        self.linear_b_0=nn.Linear(128*64*64,64)
+        self.linear_b_1=nn.Linear(64,4)
         self.decoder= Decoder()
 
  
@@ -111,11 +111,10 @@ class Segnet(nn.Module):
         flat=self.flat(enc)
        # print(flat.size(),"flatsize")
 
-      #  c_0=F.relu(self.linear_c_0(flat))
-        c_= F.relu(self.linear_c_0(flat))
-
-      #  b_0=F.relu(self.linear_b_0(flat))
-        b_=F.relu(self.linear_b_0(flat))
+        c_0=F.relu(self.linear_c_0(flat))
+        c_= (self.linear_c_1(c_0))
+        b_0=F.relu(self.linear_b_0(flat))
+        b_=F.relu(self.linear_b_1(b_0))
         dec=self.decoder(enc)
 
         return c_,b_,dec

@@ -51,10 +51,13 @@ class H5ImageLoader(Dataset):
       mask=self.mask_h5[self.mask_list][idx]
       bbox=self.bbox_h5[self.bbox_list][idx]
       classification=self.classifcation_h5[self.classification_list][idx]
-      
+      test_transform = transforms.Compose(
+        [transforms.ToTensor(),
+        transforms.Resize((64,64))])
    
       if self.transform:
         image=self.transform(image).to(torch.float32) #float32 for pytorch comptability (weights initialized to the same)
+        mask= test_transform(mask)
    
       return image,{'mask':mask, 'bbox':bbox, 'classification':classification}
 
