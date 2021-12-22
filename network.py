@@ -104,8 +104,8 @@ class Segnet(nn.Module):
         #print(enc.size(),"encsize")
         flat=self.flat(enc)
        # print(flat.size(),"flatsize")
-        c_= self.linear_c(flat)
-        b_=self.linear_b(flat)
+        c_= F.relu(self.linear_c(flat))
+        b_=F.relu(self.linear_b(flat))
 
         dec=self.decoder(enc)
 
