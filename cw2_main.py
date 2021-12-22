@@ -5,7 +5,6 @@ import train_model
 import test_model
 
 
-
 def run_cw2(train=True, test=True, visualize=True):
     ###############################
     # Load data
@@ -29,7 +28,10 @@ def run_cw2(train=True, test=True, visualize=True):
         # Train model
         model = train_model.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
-                                        model=model, optimizer=optimizer, loss_criterion=loss_criterion)
+                                        model=model, optimizer=optimizer, loss_criterion=loss_criterion,
+                                        epochs=10,
+                                        device='cpu',
+                                        )
     else:
         # Load model
         model_path = 'model.pth'  # todo: update this as a parameter.
