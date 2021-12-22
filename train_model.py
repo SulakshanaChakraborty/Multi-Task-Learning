@@ -23,30 +23,33 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             binary = binary.to(torch.long)
             bbox = labels['bbox'].to(device)
 
-            print(binary.size(), "class shape")
-
             optimizer.zero_grad()
             classes, boxes, segmask = model(inputs)
 
-            print(classes.size(), "class shape")
+            loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
+                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
+                target_bboxes=bbox)
+
+         
 
             # todo: update the loss_criterion in the loss computation.
-            loss_seg = cri_seg(segmask, mask)
-            loss_class = cri_class(classes, classes)
-            loss = loss_seg + loss_class
+            # loss_seg = cri_seg(segmask, mask)
+            # loss_class = cri_class(classes, classes)
+            # loss = loss_seg + loss_class
             # todo: make the weight of losses a hyper-parameter
 
             # pred_ax=np.argmax(classes.detach().numpy(),axis=1)
             # train_accuracy.append(np.sum((classes.detach().numpy()==pred_ax).astype(int))/len(binary))
-            train_loss.append(loss.item())
-
+            pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
+            train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
+            train_loss.append( loss.item())     
+            
             loss.backward()
             optimizer.step()
 
-            # todo: include validation loader in training loop (metrics)
-
-        time_epoch_vl = time.time()
+        time_epoch_vl=time.time() 
         print('----------------------------------------------------------------------------------')
-        print(f"Epoch: {epoch + 1} Time taken : {round(time_epoch_vl - time_epoch, 3)} seconds")
+        print(f"Epoch: {epoch+1} Time taken : {round(time_epoch_vl-time_epoch,3)} seconds")
         print("-----------------------Training Metrics-------------------------------------------")
-        print("Loss: ", round(np.mean(train_loss), 3))
+        print("Loss: ",round(np.mean(train_loss),3),"Train Accu: ",round(np.mean(train_accuracy),3))
+       # print("IOU: ",round(np.mean(train_iou),3))

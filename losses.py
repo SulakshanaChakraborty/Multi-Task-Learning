@@ -12,7 +12,7 @@ class BaselineLoss(nn.Module):
         ######################
         # Define weights
         ######################
-        self.weights = torch.ones((3,), requires_grad=True)
+        self.weights = torch.ones((2,), requires_grad=True)
 
         ######################
         # Defines losses
@@ -37,12 +37,13 @@ class BaselineLoss(nn.Module):
         else:
             segmentations_loss = 0
 
-        # Loss for bounding boxes.
-        if self.flag_bboxes:
-            bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
-        else:
-            bboxes_loss = 0
+        # # Loss for bounding boxes.
+        # if self.flag_bboxes:
+        #     bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
+        # else:
+        #     bboxes_loss = 0
 
-        loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
+       # loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
+        loss = torch.cat([labels_loss, segmentations_loss])
 
         return torch.matmul(loss, self.weights)
