@@ -44,6 +44,6 @@ class BaselineLoss(nn.Module):
         #     bboxes_loss = 0
 
        # loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
-        loss = torch.cat([labels_loss, segmentations_loss])
+        loss = torch.stack([labels_loss, segmentations_loss])
 
         return torch.matmul(loss, self.weights)

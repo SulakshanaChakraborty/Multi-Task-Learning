@@ -14,8 +14,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         train_loss = []
         train_accuracy = []
         for i, batch_data in enumerate(train_loader, 1):
+     
             inputs, labels = batch_data
-
             inputs = inputs.to(device)
             mask = torch.squeeze(labels['mask'].to(device))
             mask = mask.to(torch.long)
@@ -42,7 +42,9 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             # train_accuracy.append(np.sum((classes.detach().numpy()==pred_ax).astype(int))/len(binary))
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
-            train_loss.append( loss.item())     
+            train_loss.append( loss.item())    
+
+            print(train_accuracy[i-1], "Minibatch-acc")
             
             loss.backward()
             optimizer.step()

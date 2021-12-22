@@ -14,7 +14,7 @@ class Encoder(nn.Module):
         self.layer_0 = self.conv2d_layer(3,64) #CHANGE 3 to in channels
         self.layer_1=self.conv2d_layer(64,64)
         self.layer_2=self.conv2d_layer(64,128)
-       # self.layer_3=self.conv2d_layer(128,128)
+        self.layer_3=self.conv2d_layer(128,128)
         #self.layer_4=self.conv2d_layer(128,256)
         #self.layer_5=self.conv2d_layer(256,256)
 
@@ -32,16 +32,16 @@ class Encoder(nn.Module):
 
       #  print(x.shape)
         x=self.layer_0(x)
-      #  print(x.shape)
+       # print(x.shape)
         x=self.layer_1(x)
       #  print(x.shape)
         x=self.layer_2(x)
-        #print(x.shape)
-     #   x=self.layer_3(x)
-        #print(x.shape)
-     #   x=self.layer_4(x)
-        #print(x.shape)
-      #  x=self.layer_5(x)
+      #  print(x.shape)
+        x=self.layer_3(x)
+       # print(x.shape)
+       # x=self.layer_4(x)
+       # print(x.shape)
+       # x=self.layer_5(x)
 
         return x
 
@@ -51,9 +51,9 @@ class Decoder(nn.Module):
 
         super().__init__()
 
-      #  self.layer_0 = self.conv2d_layer_T(256,256)
-       # self.layer_1=self.conv2d_layer_T(256,128)
-        #self.layer_2=self.conv2d_layer_T(128,128)
+       # self.layer_0 = self.conv2d_layer_T(256,256)
+        #self.layer_1=self.conv2d_layer_T(256,128)
+        self.layer_2=self.conv2d_layer_T(128,128)
         self.layer_3=self.conv2d_layer_T(128,64)
         self.layer_4=self.conv2d_layer_T(64,64)
         self.layer_5=self.conv2d_layer_T(64,2) #CHANGE 2 to outchanels
@@ -75,7 +75,7 @@ class Decoder(nn.Module):
        # print(x.shape)
        # x=self.layer_1(x)
         #print(x.shape)
-       # x=self.layer_2(x)
+        x=self.layer_2(x)
         #print(x.shape)
         x=self.layer_3(x)
         #print(x.shape)
@@ -94,10 +94,10 @@ class Segnet(nn.Module):
 
         self.encoder= Encoder()
         self.flat=nn.Flatten()
-        self.linear_c_0=nn.Linear(128*64*64,64)
+        self.linear_c_0=nn.Linear(128*256*256,64)
         self.linear_c_1=nn.Linear(64,2)
 
-        self.linear_b_0=nn.Linear(128*64*64,64)
+        self.linear_b_0=nn.Linear(128*256*256,64)
         self.linear_b_1=nn.Linear(64,4)
         self.decoder= Decoder()
 
