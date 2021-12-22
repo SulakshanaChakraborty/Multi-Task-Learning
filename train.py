@@ -57,7 +57,7 @@ for epoch in range(10):
             print(classes.size(),"class shape")
 
             loss_seg = cri_seg(segmask,mask)
-            loss_class=cri_class(classes,classes)
+            loss_class=cri_class(classes,binary)
             loss = loss_seg + loss_class
 
             #pred_ax=np.argmax(classes.detach().numpy(),axis=1)
