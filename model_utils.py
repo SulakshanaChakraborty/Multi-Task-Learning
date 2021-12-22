@@ -1,11 +1,16 @@
 import sys
-
 import networks
+import torch.optim as optim
+
+
+
 
 
 def get_model(model_type):
     if model_type == 'baseline':
-        model, optimizer, loss_fn = 1, 2, 3  # todo: update
+        model = networks.segnet.Segnet()
+        optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
+        loss
     if model_type == 'mlt_hard':
         model, optimizer, loss_fn = 1, 2, 3  # todo: update
     if model_type == 'mlt_attention':

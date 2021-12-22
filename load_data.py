@@ -93,4 +93,6 @@ class H5ImageLoader(Dataset):
             image = self.transform(image).to(
                 torch.float32)  # float32 for pytorch compatibility (weights initialized to the same)
 
+        
+
         return image, {'mask': mask, 'bbox': bbox, 'classification': classification}
