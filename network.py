@@ -30,13 +30,13 @@ class Encoder(nn.Module):
 
     def forward(self,x):
 
-        print(x.shape)
+      #  print(x.shape)
         x=self.layer_0(x)
-        print(x.shape)
+      #  print(x.shape)
         x=self.layer_1(x)
-        print(x.shape)
+      #  print(x.shape)
         x=self.layer_2(x)
-        print(x.shape)
+        #print(x.shape)
      #   x=self.layer_3(x)
         #print(x.shape)
      #   x=self.layer_4(x)
@@ -94,8 +94,11 @@ class Segnet(nn.Module):
 
         self.encoder= Encoder()
         self.flat=nn.Flatten()
-        self.linear_c=nn.Linear(128*64*64,2)
-        self.linear_b=nn.Linear(128*64*64,4)
+        self.linear_c_0=nn.Linear(128*64*64,2)
+        #self.linear_c_1=nn.Linear(64*64,2)
+
+        self.linear_b_0=nn.Linear(128*64*64,4)
+      #  self.linear_b_1=nn.Linear(64*64,4)
         self.decoder= Decoder()
 
  
@@ -107,8 +110,12 @@ class Segnet(nn.Module):
         #print(enc.size(),"encsize")
         flat=self.flat(enc)
        # print(flat.size(),"flatsize")
-        c_= self.linear_c(flat)
-        b_=self.linear_b(flat)
+
+      #  c_0=F.relu(self.linear_c_0(flat))
+        c_= F.relu(self.linear_c_0(flat))
+
+      #  b_0=F.relu(self.linear_b_0(flat))
+        b_=F.relu(self.linear_b_0(flat))
         dec=self.decoder(enc)
 
         return c_,b_,dec
