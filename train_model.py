@@ -23,7 +23,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             mask = mask.to(torch.long)
             binary = torch.squeeze(labels['classification'].to(device))
             binary = binary.to(torch.long)
-            bbox = labels['bbox'].to(device)
+            bbox = torch.squeeze(labels['bbox'].to(device))
 
             optimizer.zero_grad()
             classes, boxes, segmask = model(inputs)
