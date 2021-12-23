@@ -6,8 +6,9 @@ import pt_networks.segnet
 
 
 def get_model(model_type):
+    device = 'cpu'
     if model_type == 'baseline':
-        model = pt_networks.segnet.Segnet()
+        model = pt_networks.segnet.Segnet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
         loss_fn = losses.BaselineLoss(True, True, False)
     elif model_type == 'mlt_hard':

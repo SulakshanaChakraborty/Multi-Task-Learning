@@ -12,7 +12,8 @@ class BaselineLoss(nn.Module):
         ######################
         # Define weights
         ######################
-        self.weights = torch.ones((2,), requires_grad=True)
+        device='cpu'
+        self.weights = torch.ones((2,), requires_grad=True).to(device)
 
         ######################
         # Defines losses
@@ -45,5 +46,7 @@ class BaselineLoss(nn.Module):
 
        # loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         loss = torch.stack([labels_loss, segmentations_loss])
+
+        print(self.weights,"weights")
 
         return torch.matmul(loss, self.weights)
