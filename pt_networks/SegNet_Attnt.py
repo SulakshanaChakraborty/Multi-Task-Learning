@@ -39,11 +39,12 @@ class SegNet(nn.Module):
             else:
                 self.encoder_block_att.append(self.conv2d_layer(filter[i + 1], filter[i + 1]))
 
-        linear_class_layers = [nn.Linear(512*256*256,64),nn.Linear(64,2)]
+        linear_class_layers = [nn.Linear(512*8*8,64),nn.ReLU(inplace=True),nn.Linear(64,2)]
         self.linear_class=nn.Sequential(*linear_class_layers)
-        linear_bb_layers = [nn.Linear(512*256*256,64),nn.Linear(64,4)]
+        linear_bb_layers = [nn.Linear(512*8*8,64),nn.ReLU(inplace=True), nn.Linear(64,4)]
         self.linear_bb=nn.Sequential(*linear_bb_layers)
         self.decoder = Decoder()
+        self.flat=nn.Flatten()
     
     def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
 
@@ -65,29 +66,33 @@ class SegNet(nn.Module):
         )
         return att_block
 
-    def foward(self,x):
-        g_encoder, g_maxpool,indices = ([0] * 5 for _ in range(3))
+    def forward(self,x):
+        g_encoder, g_maxpool,indices,x_shapes = ([0] * 5 for _ in range(4))
         for i in range(5):
             g_encoder[i] = [0] * 2 
 
+      
         # define attention list for tasks
-        atten_encoder = [0] * 3
-        for i in range(2):
-            atten_encoder[i] = [0] * 5 
+        atten_encoder, atten_decoder = ([0] * 3 for _ in range(2))  
+        for i in range(3):
+            atten_encoder[i], atten_decoder[i] = ([0] * 5 for _ in range(2))
         for i in range(3):
             for j in range(5):
-                atten_encoder[i][j] = [0] * 3
+                atten_encoder[i][j], atten_decoder[i][j] = ([0] * 3 for _ in range(2))
         
         # define global shared network
         for i in range(5):
             if i == 0:
                 g_encoder[i][0] = self.encoder_block[i](x)
                 g_encoder[i][1] = self.conv_block_enc[i](g_encoder[i][0])
+                
                 g_maxpool[i], indices[i] = self.down_sampling(g_encoder[i][1])
+                x_shapes[i] = g_maxpool[i].size()
             else:
                 g_encoder[i][0] = self.encoder_block[i](g_maxpool[i - 1])
-                g_encoder[i][1] = self.conv_block_enc[i](g_encoder[i][0])
+                g_encoder[i][1] = self.conv_block_enc[i](g_encoder[i][0])             
                 g_maxpool[i], indices[i] = self.down_sampling(g_encoder[i][1])
+                x_shapes[i] = g_maxpool[i].size()
 
         for i in range(3):
             for j in range(5):
@@ -102,11 +107,20 @@ class SegNet(nn.Module):
                     atten_encoder[i][j][2] = self.encoder_block_att[j](atten_encoder[i][j][1])
                     atten_encoder[i][j][2] = F.max_pool2d(atten_encoder[i][j][2], kernel_size=2, stride=2)
         
-        target_pred = self.decoder(atten_encoder[0][-1][-1],indices)
-        aux_pred_c = self.linear_class(atten_encoder[1][-1][-1])
-        aux_pred_bb = self.linear_bb(atten_encoder[2][-1][-1])
+        x = atten_encoder[0][-1][-1].shape   
+        y = atten_encoder[1][-1][-1].shape   
+        z = atten_encoder[2][-1][-1].shape     
 
-        return target_pred,aux_pred_c,aux_pred_bb
+        target_pred = self.decoder(atten_encoder[0][-1][-1],indices,x_shapes)
+        flat_c = self.flat(atten_encoder[1][-1][-1])
+        flat_bb = self.flat(atten_encoder[2][-1][-1])
+        aux_pred_c = self.linear_class(flat_c)
+        aux_pred_bb = self.linear_bb(flat_bb)
+        print("aux_pred_bb",aux_pred_bb.shape)
+        print("aux_pred_c",aux_pred_c.shape)
+        print("target_pred",target_pred.shape)
+
+        return aux_pred_c,aux_pred_bb, target_pred
         
 
 class Decoder(nn.Module):
@@ -146,11 +160,10 @@ class Decoder(nn.Module):
 
         return nn.Sequential(*layer)
 
-    def forward(self,x,indices):
-
-        x1,x2,x3,x4,x5 = [64, 128, 256, 512, 512]
+    def forward(self,x,indices,x_shapes):
         i1,i2,i3,i4,i5 = indices
-
+        x1,x2,x3,x4,x5 = x_shapes
+                    
         #print(x.shape)
 
        
@@ -236,6 +249,7 @@ class Decoder(nn.Module):
         #print(x.shape)
 
         return x
+
 segnet = SegNet()
 print(segnet) 
 # class Segnet(nn.Module):
