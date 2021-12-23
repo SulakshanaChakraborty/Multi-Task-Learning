@@ -12,8 +12,11 @@ def get_model(model_type):
         optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
         loss_fn = losses.BaselineLoss(True, True, False)
     elif model_type == 'mlt_hard':
-        model, optimizer, loss_fn = 1, 2, 3  # todo: update
+        model = pt_networks.segnet.SegNet_Attnt().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=0.001)
+        loss_fn = losses.BaselineLoss(True, True, False)  # todo: update
     elif model_type == 'mlt_attention':
+
         model, optimizer, loss_fn = 1, 2, 3  # todo: update
     elif model_type == 'mlt_gscnn':
         model, optimizer, loss_fn = pt_networks.GSCNN(), 2, 3  # todo: update

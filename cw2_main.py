@@ -22,7 +22,7 @@ def run_cw2(train=True, test=True, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'baseline'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
+    model_type = 'mlt_attention'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type)
     if train:
         # Train model
