@@ -1,18 +1,20 @@
 import sys
-
 import torch
 import numpy as np
 import time
+from metrics import eval_metrics, iou_pytorch
 
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device):
     # todo: update with new requirements of mlt.
     # Iterate over the whole data.
+    device = 'cpu'
     for epoch in range(epochs):
 
         time_epoch = time.time()
         train_loss = []
         train_accuracy = []
+        train_iou=[]
         for i, batch_data in enumerate(train_loader, 1):
      
             inputs, labels = batch_data
@@ -29,6 +31,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
                 input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
+            
 
          
 
@@ -45,7 +48,11 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             train_loss.append( loss.item())    
 
             print(train_accuracy[i-1], "Minibatch-acc")
+            target_segmentation = torch.argmax(segmask, 1)
             
+            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
+            print(iou.item())
+            train_iou.append(iou.item())
             loss.backward()
             optimizer.step()
 
@@ -54,4 +61,4 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         print(f"Epoch: {epoch+1} Time taken : {round(time_epoch_vl-time_epoch,3)} seconds")
         print("-----------------------Training Metrics-------------------------------------------")
         print("Loss: ",round(np.mean(train_loss),3),"Train Accu: ",round(np.mean(train_accuracy),3))
-       # print("IOU: ",round(np.mean(train_iou),3))
+        print("IOU: ",round(np.mean(train_iou),3))

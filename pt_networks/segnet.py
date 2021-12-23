@@ -5,18 +5,62 @@ import torch.nn.functional as F
 
 
 
-class Encoder(nn.Module):
+
+class Segnet(nn.Module):
 
     def __init__(self):
 
         super().__init__()
 
-        self.layer_0 = self.conv2d_layer(3,64) #CHANGE 3 to in channels
-        self.layer_1=self.conv2d_layer(64,64)
-        self.layer_2=self.conv2d_layer(64,128)
-        self.layer_3=self.conv2d_layer(128,128)
-        #self.layer_4=self.conv2d_layer(128,256)
-        #self.layer_5=self.conv2d_layer(256,256)
+        self.layer_10 = self.conv2d_layer(3,64) #CHANGE 3 to in channels
+        self.layer_11=self.conv2d_layer(64,64)
+
+        self.layer_20=self.conv2d_layer(64,128)
+        self.layer_21=self.conv2d_layer(128,128)
+
+        self.layer_30=self.conv2d_layer(128,256)
+        self.layer_31=self.conv2d_layer(256,256)
+        self.layer_32=self.conv2d_layer(256,256)
+
+        self.layer_40=self.conv2d_layer(256,512)
+        self.layer_41=self.conv2d_layer(512,512)
+        self.layer_42=self.conv2d_layer(512,512)
+
+        self.layer_50=self.conv2d_layer(512,512)
+        self.layer_51=self.conv2d_layer(512,512)
+        self.layer_52=self.conv2d_layer(512,512)
+
+        self.downsample= nn.MaxPool2d(2, stride=2, return_indices=True) 
+
+        self.layer_52_t=self.conv2d_layer(512,512)
+        self.layer_51_t=self.conv2d_layer(512,512)
+        self.layer_50_t=self.conv2d_layer(512,512)
+
+        
+        self.layer_42_t=self.conv2d_layer(512,512)
+        self.layer_41_t=self.conv2d_layer(512,512)
+        self.layer_40_t=self.conv2d_layer(512,256)
+
+        self.layer_32_t=self.conv2d_layer(256,256)
+        self.layer_31_t=self.conv2d_layer(256,256)
+        self.layer_30_t=self.conv2d_layer(256,128)
+
+        self.layer_21_t=self.conv2d_layer(128,128)
+        self.layer_20_t=self.conv2d_layer(128,64)
+
+    
+        self.layer_11_t=self.conv2d_layer(64,64)
+        self.layer_10_t=self.conv2d_layer(64,2) 
+
+        self.upsample = nn.MaxUnpool2d(2, stride=2) 
+
+        self.linear_c_0=nn.Linear(512*8*8,64)
+        self.linear_c_1=nn.Linear(64,2)
+
+        self.linear_b_0=nn.Linear(512*8*8,64)
+        self.linear_b_1=nn.Linear(64,4)
+
+        self.flat=nn.Flatten()
 
 
     def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
@@ -30,94 +74,96 @@ class Encoder(nn.Module):
 
     def forward(self,x):
 
-      #  print(x.shape)
-        x=self.layer_0(x)
-       # print(x.shape)
-        x=self.layer_1(x)
-      #  print(x.shape)
-        x=self.layer_2(x)
-      #  print(x.shape)
-        x=self.layer_3(x)
-       # print(x.shape)
-       # x=self.layer_4(x)
-       # print(x.shape)
-       # x=self.layer_5(x)
 
-        return x
-
-class Decoder(nn.Module):
-
-    def __init__(self):
-
-        super().__init__()
-
-       # self.layer_0 = self.conv2d_layer_T(256,256)
-        #self.layer_1=self.conv2d_layer_T(256,128)
-        self.layer_2=self.conv2d_layer_T(128,128)
-        self.layer_3=self.conv2d_layer_T(128,64)
-        self.layer_4=self.conv2d_layer_T(64,64)
-        self.layer_5=self.conv2d_layer_T(64,2) #CHANGE 2 to outchanels
-
-
-    def conv2d_layer_T(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
-
-        layer=[]
-        layer.append(nn.BatchNorm2d(in_ch))
-        layer.append(nn.ConvTranspose2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
-        layer.append(nn.ReLU(inplace=True))
-
-        return nn.Sequential(*layer)
-
-    def forward(self,x):
-
-      #  print(x.shape)
-      #  x=self.layer_0(x)
-       # print(x.shape)
-       # x=self.layer_1(x)
-        #print(x.shape)
-        x=self.layer_2(x)
-        #print(x.shape)
-        x=self.layer_3(x)
-        #print(x.shape)
-        x=self.layer_4(x)
-        #print(x.shape)
-        x=self.layer_5(x)
         #print(x.shape)
 
-        return x
+       
+        x=self.layer_10(x)
+        x=self.layer_11(x)
+        x,i1=self.downsample(x)
+        x1=x.size()
+        
+        #print(x.shape)
 
-class Segnet(nn.Module):
+        x=self.layer_20(x)
+        x=self.layer_21(x)
+        x,i2=self.downsample(x)
+        x2=x.size()
 
-    def __init__(self):
+        #print(x.shape)
 
-        super().__init__()
+        x=self.layer_30(x)
+        x=self.layer_31(x)
+        x=self.layer_32(x)
+        x,i3=self.downsample(x)
+        x3=x.size()
 
-        self.encoder= Encoder()
-        self.flat=nn.Flatten()
-        self.linear_c_0=nn.Linear(128*256*256,64)
-        self.linear_c_1=nn.Linear(64,2)
+        #print(x.shape)
 
-        self.linear_b_0=nn.Linear(128*256*256,64)
-        self.linear_b_1=nn.Linear(64,4)
-        self.decoder= Decoder()
+        x=self.layer_40(x)
+        x=self.layer_41(x)
+        x=self.layer_42(x)
+        x,i4=self.downsample(x)
+        x4=x.size()
 
- 
+        #print(x.shape)
 
+        x=self.layer_50(x)
+        x=self.layer_51(x)
+        x=self.layer_52(x)
+        x,i5=self.downsample(x)
+        x5=x.size()
 
-    def forward(self,x):
-
-        enc=self.encoder(x)
-        #print(enc.size(),"encsize")
-        flat=self.flat(enc)
+        flat=self.flat(x)
        # print(flat.size(),"flatsize")
 
         c_0=F.relu(self.linear_c_0(flat))
         c_= (self.linear_c_1(c_0))
         b_0=F.relu(self.linear_b_0(flat))
         b_=F.relu(self.linear_b_1(b_0))
-        dec=self.decoder(enc)
 
-        return c_,b_,dec
+       # print(x.shape)
+
+        x=self.upsample(x,i5,output_size=x4)
+        x=self.layer_52_t(x)
+        x=self.layer_51_t(x)
+        x=self.layer_50_t(x)
+   
+        #print(x.shape)
+
+        x=self.upsample(x,i4,output_size=x3)
+        x=self.layer_42_t(x)
+        x=self.layer_41_t(x)
+        x=self.layer_40_t(x)
+
+       # print(x.shape)
+
+        x=self.upsample(x,i3,output_size=x2)
+        x=self.layer_32_t(x)
+        x=self.layer_31_t(x)
+        x=self.layer_30_t(x)
+
+        #print(x.shape)
+
+        x=self.upsample(x,i2,output_size=x1)
+        x=self.layer_21_t(x)
+        x=self.layer_20_t(x)
+
+
+        #print(x.shape)
+
+        
+        x=self.upsample(x,i1)
+        x=self.layer_11_t(x)
+        x=self.layer_10_t(x)
+        
+        #print(x.shape)
+
+        return c_,b_,x
+
+
+
+
 
 class AttentionBlock(nn.Module):
 

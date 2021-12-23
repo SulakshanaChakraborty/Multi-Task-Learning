@@ -5,11 +5,12 @@ import torchvision.transforms as transforms
 import pathlib
 
 
-def create_data_loaders(train_path, validation_path, test_path, batch_size=4):
+def create_data_loaders(train_path, validation_path, test_path, batch_size=16):
     # Train data
     train_transform = transforms.Compose(
         [transforms.ToTensor(),
-         transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5))])
+         transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
+        ])
     train_loader = build_data_loader(data_path=train_path, pt_transforms=train_transform, batch_size=batch_size)
     # Validation data
     validation_transform = train_transform
@@ -18,13 +19,14 @@ def create_data_loaders(train_path, validation_path, test_path, batch_size=4):
     # Test data
     test_transform = transforms.Compose(
         [transforms.ToTensor(),
-         transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5))])
+         transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
+         ])
     test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size)
 
     return train_loader, validation_loader, test_loader
 
 
-def build_data_loader(data_path, pt_transforms, batch_size=4):
+def build_data_loader(data_path, pt_transforms, batch_size=16):
     # Define paths
     images_filepath = pathlib.Path(data_path + '/images.h5')
     masks_filepath = pathlib.Path(data_path + '/masks.h5')
@@ -35,7 +37,7 @@ def build_data_loader(data_path, pt_transforms, batch_size=4):
     image_loader = H5ImageLoader(img_file=images_filepath, mask_file=masks_filepath, bbox_file=bboxes_filepath,
                                  classification_file=labels_filepath, transform=pt_transforms)  # All data paths
     # Create pytorch loader
-    data_loader = DataLoader(image_loader, batch_size=4, shuffle=True)
+    data_loader = DataLoader(image_loader, batch_size=batch_size, shuffle=True)
 
     return data_loader
 
@@ -88,10 +90,15 @@ class H5ImageLoader(Dataset):
         mask = self.mask_h5[self.mask_list][idx]
         bbox = self.bbox_h5[self.bbox_list][idx]
         classification = self.classifcation_h5[self.classification_list][idx]
-
+      
         if self.transform:
+        #    # mask_transform = transforms.Compose(
+        #      [transforms.ToTensor(),
+        #       transforms.Resize((64,64))]) 
             image = self.transform(image).to(
                 torch.float32)  # float32 for pytorch compatibility (weights initialized to the same)
+
+            #mask= mask_transform(mask)
 
         
 
