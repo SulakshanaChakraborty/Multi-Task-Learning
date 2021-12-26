@@ -116,9 +116,6 @@ class SegNet(nn.Module):
         flat_bb = self.flat(atten_encoder[2][-1][-1])
         aux_pred_c = self.linear_class(flat_c)
         aux_pred_bb = self.linear_bb(flat_bb)
-        print("aux_pred_bb",aux_pred_bb.shape)
-        print("aux_pred_c",aux_pred_c.shape)
-        print("target_pred",target_pred.shape)
 
         return aux_pred_c,aux_pred_bb, target_pred
         
