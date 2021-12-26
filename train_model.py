@@ -9,6 +9,9 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
     # todo: update with new requirements of mlt.
     # Iterate over the whole data.
     device = 'cpu'
+    running_loss = 0
+    running_acc = 0
+    running_iou = 0
     for epoch in range(epochs):
 
         time_epoch = time.time()
@@ -31,6 +34,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
                 input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
+
+            print("loss",loss.dtype)
             
 
          
@@ -45,13 +50,23 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             # train_accuracy.append(np.sum((classes.detach().numpy()==pred_ax).astype(int))/len(binary))
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
-            train_loss.append( loss.item())    
-
-            print(train_accuracy[i-1], "Minibatch-acc")
+            train_loss.append( loss.item())  
             target_segmentation = torch.argmax(segmask, 1)
+            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))  
+
+            running_loss += loss.item()
+            running_acc += train_accuracy[i-1]
+            running_iou += iou.item()
+
+            if i % 1 == 0:
+                print(running_acc/(i+1), "Minibatch i+1 accuracy")
+                print(running_loss/(i+1), "Minibatch i+1 total loss")
+                print(running_iou/(i+1), "Minibatch i+1 IOU")
+
+
             
-            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-            print(iou.item())
+            
+            #print(iou.item())
             train_iou.append(iou.item())
             loss.backward()
             optimizer.step()
@@ -62,3 +77,5 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         print("-----------------------Training Metrics-------------------------------------------")
         print("Loss: ",round(np.mean(train_loss),3),"Train Accu: ",round(np.mean(train_accuracy),3))
         print("IOU: ",round(np.mean(train_iou),3))
+    torch.save(model.state_dict(),'saved_attnt.pt')
+
