@@ -3,14 +3,15 @@ import pt_networks
 import torch.optim as optim
 import losses
 import pt_networks.segnet
+import torch
 
+def get_model(model_type,device):
 
-def get_model(model_type):
-    device = 'cpu'
+   
     if model_type == 'baseline':
         model = pt_networks.segnet.Segnet().to(device)
-        optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
-        loss_fn = losses.BaselineLoss(True, True, False)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        loss_fn = losses.SoftAdaptLoss(True, True, True)
     elif model_type == 'mlt_hard':
         model, optimizer, loss_fn = 1, 2, 3  # todo: update
     elif model_type == 'mlt_attention':

@@ -12,7 +12,9 @@ def run_cw2(train=True, test=True, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 8
+    batch_size = 5
+    device='cuda'
+ 
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
@@ -23,14 +25,14 @@ def run_cw2(train=True, test=True, visualize=True):
     # Train Model
     ###############################
     model_type = 'baseline'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
-    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type)
+    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type,device=device)
     if train:
         # Train model
         model = train_model.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
                                         model=model, optimizer=optimizer, loss_criterion=loss_criterion,
-                                        epochs=10,
-                                        device='cpu',
+                                        epochs=30,
+                                        device=device,
                                         )
     else:
         # Load model
