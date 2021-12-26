@@ -3,16 +3,17 @@ import load_data
 import model_utils
 import train_model
 import test_model
+import torch
 
 
-def run_cw2(train=True, test=True, visualize=True):
+def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Load data
     ###############################
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 8
+    batch_size = 6
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
@@ -24,7 +25,10 @@ def run_cw2(train=True, test=True, visualize=True):
     ###############################
     model_type = 'mlt_attention'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type)
+    # checkpoint = torch.load('./saved_attnt.pt',map_location='cpu')
+    # model.load_state_dict(checkpoint)
     if train:
+        print("Training the model!")
         # Train model
         model = train_model.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
@@ -42,7 +46,10 @@ def run_cw2(train=True, test=True, visualize=True):
     ###############################
     if test:
         # Evaluate over testing dataset.
-        test_loss, test_metrics = test_model.evaluate_model_on_data(data_loader=test_loader, model=model)
+        print("Evaluating the model!")
+        test_model.evaluate_model_on_data(data_loader=test_loader, model=model)
+        # print("test_loss:",test_loss)
+        # print("test_metrics:",test_metrics)
 
     ###############################
     # Run visualization

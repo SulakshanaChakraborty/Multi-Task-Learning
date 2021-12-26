@@ -21,7 +21,7 @@ class BaselineLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = torch.nn.CrossEntropyLoss()  # todo: update loss
+        self.bboxes_criterion = torch.nn.MSELoss()  # todo: update loss
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
                 target_bboxes):
@@ -39,14 +39,15 @@ class BaselineLoss(nn.Module):
             segmentations_loss = 0
 
         # # Loss for bounding boxes.
-        # if self.flag_bboxes:
-        #     bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
-        # else:
-        #     bboxes_loss = 0
+        if self.flag_bboxes:
+            bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes).float()
+        else:
+            bboxes_loss = 0
 
        # loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
-        loss = torch.stack([labels_loss, segmentations_loss])
+        loss =  0.9*labels_loss+1*segmentations_loss+0.001*bboxes_loss.float()
 
-        print(self.weights,"weights")
+        print(f"labels_loss: {labels_loss:.8f}, segmentations_loss: {segmentations_loss:.8f}, bboxes_loss: {bboxes_loss:.8f}")
+        #print(self.weights,"weights")
 
-        return torch.matmul(loss, self.weights)
+        return loss.float()
