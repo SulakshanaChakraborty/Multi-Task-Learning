@@ -1,4 +1,4 @@
-import displaying
+simport displaying
 import load_data
 import model_utils
 import train_model
@@ -13,7 +13,9 @@ def run_cw2(train=True, test=False, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 6
+    batch_size = 5
+    device='cuda'
+ 
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
@@ -33,8 +35,8 @@ def run_cw2(train=True, test=False, visualize=True):
         model = train_model.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
                                         model=model, optimizer=optimizer, loss_criterion=loss_criterion,
-                                        epochs=10,
-                                        device='cpu',
+                                        epochs=30,
+                                        device=device,
                                         )
     else:
         # Load model

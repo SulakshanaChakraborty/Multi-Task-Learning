@@ -6,9 +6,9 @@ import pt_networks.segnet
 import pt_networks.SegNet_Attnt_reformat
 import pt_networks.SegNet_Attnt
 
+def get_model(model_type,device):
 
-def get_model(model_type):
-    device = 'cpu'
+   
     if model_type == 'baseline':
         model = pt_networks.segnet.Segnet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
