@@ -30,23 +30,24 @@ class BaselineLoss(nn.Module):
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = 0
+            labels_loss = torch.zeros(1, requires_grad=True)
 
         # Loss for segmentations.
         if self.flag_labels:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = 0
+            segmentations_loss = torch.zeros(1, requires_grad=True)
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = 0
+            bboxes_loss = torch.zeros(1, requires_grad=True)
 
         #    loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         #    loss = torch.stack([labels_loss, segmentations_loss])
 
+        # loss = torch.Tensor([labels_loss + segmentations_loss + 0.001 * bboxes_loss])
         loss = labels_loss + segmentations_loss + 0.001 * bboxes_loss
 
         # print(loss,"total loss")

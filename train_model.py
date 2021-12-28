@@ -61,7 +61,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
                 input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
 
-            print("loss",loss.dtype)
+            # print("loss",loss.dtype)
             
         
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
