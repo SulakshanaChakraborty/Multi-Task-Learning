@@ -7,8 +7,8 @@ import pt_networks.segnet
 import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
-model_name = 'Segnet-Baseline-loss-3task'
-log_name='segnetbaseafter30/'
+
+log_name='Segnet3taskGMloss/'
 date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
@@ -68,11 +68,11 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
             print(train_accuracy[i-1],"minibatch acc")
 
-            train_label_loss.append(labels_loss.data.item())
+           # train_label_loss.append(labels_loss.data.item())
             train_segmentation_loss.append(segmentation_loss.data.item())
 
 
-            train_bbox_loss.append(bboxes_loss.data.item())
+           # train_bbox_loss.append(bboxes_loss.data.item())
             target_segmentation = torch.argmax(segmask, 1)
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             train_iou.append(iou.item())
@@ -101,16 +101,16 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
             val_loss.append(loss.item())  
 
-            val_label_loss.append(labels_loss.data.item())
+          #  val_label_loss.append(labels_loss.data.item())
             val_segmentation_loss.append(segmentation_loss.data.item()) 
 
 
             target_segmentation = torch.argmax(segmask, 1)
 
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-           # print(round(iou.item(),3),"iou")
+#print(round(iou.item(),3),"iou")
             val_iou.append(iou.item())
-            val_bbox_loss.append(bboxes_loss.data.item())  
+           # val_bbox_loss.append(bboxes_loss.data.item())  
             
 
         time_epoch_vl=time.time() 
@@ -143,9 +143,9 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         writer.add_scalar('Val-Epoch-Seg-loss',round(np.mean(val_segmentation_loss),3), epoch)
         writer.add_scalar('Val-Epoch-label-loss',round(np.mean(val_label_loss),3), epoch)
     
-        # if round(np.mean(val_iou),3) > best_val_iou and round(np.mean(val_accuracy),3) > best_val_accuracy:
+        # if round(np.mean(val_iou),3) > best_val_iou: #and round(np.mean(val_accuracy),3) > best_val_accuracy:
 
         #  best_val_iou=round(np.mean(val_iou),3)
-        #  best_val_accuracy=round(np.mean(val_accuracy),3)
-        #  torch.save(model.state_dict(), 'MTL-base-Segnet-classfication-1.pt')
+     #    best_val_accuracy=round(np.mean(val_accuracy),3)
+        torch.save(model.state_dict(), 'Segnet3taskGMloss.pt')
       

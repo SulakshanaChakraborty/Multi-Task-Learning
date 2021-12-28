@@ -35,7 +35,7 @@ class BaselineLoss(nn.Module):
             labels_loss = 0
 
        # Loss for segmentations.
-        if self.flag_labels:
+        if self.flag_segmentations:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
             segmentations_loss = 0
@@ -50,6 +50,7 @@ class BaselineLoss(nn.Module):
     #    loss = torch.stack([labels_loss, segmentations_loss])
 
         loss = labels_loss + segmentations_loss + 0.001*bboxes_loss
+
 
 
         # print(loss,"total loss")
