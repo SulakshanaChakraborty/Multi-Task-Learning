@@ -4,6 +4,7 @@ import pt_networks
 import torch.optim as optim
 import losses
 import pt_networks.segnet
+import pt_networks.SegNet_Attnt_reformat
 import pt_networks.SegNet_Attnt
 
 def get_model(model_type,device):
@@ -16,7 +17,11 @@ def get_model(model_type,device):
         #loss_fn = losses.BaselineLoss(False, True,False)
     elif model_type == 'mlt_attention':
         model = pt_networks.SegNet_Attnt.SegNet().to(device)
+<<<<<<< HEAD
         optimizer = optim.Adam(model.parameters(), lr=0.001)
+=======
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)
+>>>>>>> cccf8abc6218524616b4b1653ee9cbc3f6a08dd5
         loss_fn = losses.BaselineLoss(True, True, True)  # todo: update
     elif model_type == 'mlt_hard':
 

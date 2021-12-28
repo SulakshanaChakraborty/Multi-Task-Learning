@@ -60,6 +60,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             loss,labels_loss,segmentation_loss,bboxes_loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
                 input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
+
+            print("loss",loss.dtype)
             
         
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
