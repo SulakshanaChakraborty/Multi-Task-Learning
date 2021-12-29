@@ -30,25 +30,24 @@ class BaselineLoss(nn.Module):
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = torch.zeros(1, requires_grad=True)
+            labels_loss = 0
 
-       # Loss for segmentations.
-        if self.flag_segmentations:
+        # Loss for segmentations.
+        if self.flag_labels:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = torch.zeros(1, requires_grad=True)
+            segmentations_loss = 0
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = torch.zeros(1, requires_grad=True)
+            bboxes_loss = 0
 
         #    loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         #    loss = torch.stack([labels_loss, segmentations_loss])
 
-        loss = labels_loss + segmentations_loss + 0.0001 * bboxes_loss
-
+        loss = labels_loss + segmentations_loss + 0.001 * bboxes_loss
 
         # print(loss,"total loss")
 
@@ -68,8 +67,9 @@ class SoftAdaptLoss(nn.Module):
         device = 'cuda'
 
         self.grad = torch.zeros((3,)).to(device)
+        self.history = torch.zeros((3, 2)).to(device)
         self.counter = 1
-        self.n = torch.ones((3,)).to(device)
+        self.n = torch.zeros((3,)).to(device)
 
         ######################
         # Defines losses
@@ -80,7 +80,7 @@ class SoftAdaptLoss(nn.Module):
         self.bboxes_criterion = nn.MSELoss()  # todo: update loss
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
-                target_bboxes,epoch):
+                target_bboxes):
 
         # Loss for labels.
         if self.flag_labels:
@@ -104,6 +104,10 @@ class SoftAdaptLoss(nn.Module):
             k = 1
         else:
             k = 0
+
+        self.history[0][k] = labels_loss.data.item()
+        self.history[2][k] = bboxes_loss.data.item()
+        self.history[1][k] = segmentations_loss.data.item()
 
         self.counter += 1
 
@@ -142,7 +146,7 @@ class GeometricLoss(nn.Module):
         # Define weights
         ######################
         # self.weights = torch.tensor([1, 1, 0], requires_grad=True).to(device)
-        self.weights = torch.tensor([1, 1, 0.001]).to(device)
+        self.weights = torch.tensor([1, 1, 0], requires_grad=True).to(device)
 
         ######################
         # Defines losses
@@ -162,7 +166,7 @@ class GeometricLoss(nn.Module):
             labels_loss = 0
 
         # Loss for segmentations.
-        if self.flag_segmentations:
+        if self.flag_labels:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
             segmentations_loss = 0
@@ -178,7 +182,7 @@ class GeometricLoss(nn.Module):
         # loss = torch.matmul(loss, self.weights)
 
         # Compute total loss.
-        multiplication = self.weights[0]*labels_loss * self.weights[1]*segmentations_loss * self.weights[2]* bboxes_loss
+        multiplication = labels_loss * segmentations_loss * bboxes_loss
         n_elements = 3
         loss = torch.pow(multiplication, 1 / n_elements)
 
