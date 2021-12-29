@@ -1,5 +1,13 @@
 # Data
 data/
+# Pycharm
+.idea/
+idea/
+
+# 
+logs/
+
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -139,8 +147,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
-
-.idea/
 
 # Pycharm 
 .idea/
