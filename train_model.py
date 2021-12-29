@@ -8,7 +8,7 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='Segnet3taskGMloss/'
+log_name='Segnet1taskPretrainedVGGPooled/'
 date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
@@ -41,6 +41,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         val_bbox_loss=[]
         val_segmentation_loss=[]
         val_label_loss=[]
+
+    
         
         for i, batch_data in enumerate(train_loader, 1):
      
@@ -60,24 +62,23 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             loss,labels_loss,segmentation_loss,bboxes_loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
                 input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
-
-            print("loss",loss.dtype)
             
         
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
             train_loss.append(loss.item())
 
-            print(train_accuracy[i-1],"minibatch acc")
+          #  print(train_accuracy[i-1],"minibatch acc")
 
-           # train_label_loss.append(labels_loss.data.item())
+            #train_label_loss.append(labels_loss.data.item())
             train_segmentation_loss.append(segmentation_loss.data.item())
 
 
-           # train_bbox_loss.append(bboxes_loss.data.item())
+          #  train_bbox_loss.append(bboxes_loss.data.item())
             target_segmentation = torch.argmax(segmask, 1)
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             train_iou.append(iou.item())
+            print(train_iou[i-1],"iou")
 
             loss.backward()
             optimizer.step()
@@ -99,20 +100,18 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
                 target_bboxes=bbox)
         
 
-            pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
-            val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
-            val_loss.append(loss.item())  
+          #  pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
+          #  val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
+           # val_loss.append(loss.item())  
 
-          #  val_label_loss.append(labels_loss.data.item())
+           # val_label_loss.append(labels_loss.data.item())
             val_segmentation_loss.append(segmentation_loss.data.item()) 
-
-
             target_segmentation = torch.argmax(segmask, 1)
 
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-#print(round(iou.item(),3),"iou")
+            print(round(iou.item(),3),"iou")
             val_iou.append(iou.item())
-           # val_bbox_loss.append(bboxes_loss.data.item())  
+            #val_bbox_loss.append(bboxes_loss.data.item())  
             
 
         time_epoch_vl=time.time() 
@@ -149,5 +148,5 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
      #    best_val_accuracy=round(np.mean(val_accuracy),3)
-        torch.save(model.state_dict(), 'Segnet3taskGMloss.pt')
+        torch.save(model.state_dict(), 'Segnet1taskpretrainedPooled.pt')
       
