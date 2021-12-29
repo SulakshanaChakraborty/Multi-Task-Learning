@@ -1,4 +1,4 @@
-# simport displaying
+import displaying
 import load_data
 import model_utils
 import train_model
@@ -25,8 +25,8 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'baseline_unet'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
-    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+    model_type = 'unet'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
+    model, optimizer, loss_criterion = model_utils.get_model()
     # checkpoint = torch.load('./saved_attnt.pt',map_location='cpu')
     # model.load_state_dict(checkpoint)
     if train:

@@ -6,19 +6,24 @@ import pt_networks.segnet
 import pt_networks.SegNet_Attnt_reformat
 import pt_networks.SegNet_Attnt
 import pt_networks.unet
+import pt_networks.unet_reduced_layers
 
-def get_model(model_type,device='cpu'):
+
+def get_model(model_type='unet',device='cpu'):
 
    
     if model_type == 'baseline':
         model = pt_networks.segnet.Segnet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
         loss_fn = losses.BaselineLoss(True, True, False)
-    if model_type == 'baseline_unet':
+    elif model_type == 'unet':
         model = pt_networks.unet.UNet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.00001)
         loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=False)
-
+    elif model_type == 'unet_reduced_layers':
+        model = pt_networks.unet_reduced_layers.UNet().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=0.00001)
+        loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=False)
     elif model_type == 'mlt_attention':
         model = pt_networks.SegNet_Attnt.SegNet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)
