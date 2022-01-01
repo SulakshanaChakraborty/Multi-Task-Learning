@@ -12,17 +12,17 @@ from PIL import Image
 train_path = 'data/train/'
 validation_path = 'data/val/'
 test_path = 'data/test/'
-batch_size = 5
+batch_size = 128
 device='cpu'
  
 train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
-                                                                                 batch_size=batch_size,noisy = False
+                                                                                 batch_size=batch_size,
                                                                                  )
 
 writer = SummaryWriter('runs/display_data_validation')
-data=iter(train_loader)
+data=iter(validation_loader)
 
 images,labels=data.next()
 
