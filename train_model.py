@@ -9,7 +9,7 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='Segnet3taskPretrainedFixedmetric/'
+log_name='Segnet1taskPretrainedFixedmetric/'
 #date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
 date='200102bbox0.00007'
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
@@ -117,12 +117,12 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             target_segmentation = torch.argmax(segmask, 1)
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             train_iou.append(iou.item())
-            print(train_iou[i-1],"iou")
+            #print(train_iou[i-1],"iou")
 
             mask_array=np.array(mask.cpu()).ravel()
-            predicted_array=target_segmentation.cpu().ravel()
-            print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac')
-            print(f1_score(mask_array,predicted_array),"skf1")
+            predicted_array=np.array(target_segmentation.cpu().ravel())
+          #  print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac')
+           # print(f1_score(mask_array,predicted_array),"skf1")
 
             train_jac=jaccard_score(mask_array,predicted_array,average='weighted')
             train_f1=f1_score(mask_array,predicted_array)
@@ -164,11 +164,14 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             val_segmentation_loss.append(segmentation_loss.data.item()) 
             target_segmentation = torch.argmax(segmask, 1)
 
-            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-            print(round(iou.item(),3),"iou")
+            val_mask_array=np.array(mask.cpu()).ravel()
+            val_predicted_array=np.array(target_segmentation.cpu().ravel())
 
-            val_jac=jaccard_score(mask_array,predicted_array,average='weighted')
-            val_f1=f1_score(mask_array,predicted_array)
+            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
+          #  print(round(iou.item(),3),"iou")
+
+            val_jac=jaccard_score(val_mask_array,val_predicted_array,average='weighted')
+            val_f1=f1_score(val_mask_array,val_predicted_array)
 
             val_jaca.append(val_jac)
             val_f1_arr.append(val_f1)
@@ -234,5 +237,5 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
      #    best_val_accuracy=round(np.mean(val_accuracy),3)
-        torch.save(model.state_dict(), 'Segnet3taskPretrainedFixedmetric20020007.pt')
+        torch.save(model.state_dict(), 'Segnet1taskPretrainedFixedmetric20020007.pt')
       
