@@ -15,7 +15,7 @@ def run_cw2(train=True, test=False, visualize=True):
     validation_path = 'data/val/'
     test_path = 'data/test/'
     batch_size = 5
-    device='cpu'
+    device='cuda'
  
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
@@ -28,10 +28,7 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     model_type = 'mlt_attention' #baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type,device=device)
-    # model_type = 'baseline_unet'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
-    # model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-    # checkpoint = torch.load('./saved_attnt.pt',map_location='cpu')
-    # model.load_state_dict(checkpoint)
+ 
     if train:
         print("Training the model!")
         # Train model
@@ -39,7 +36,7 @@ def run_cw2(train=True, test=False, visualize=True):
                                         validation_loader=validation_loader,
                                         model=model, optimizer=optimizer, loss_criterion=loss_criterion,
                                         epochs=30,
-                                        device=device,
+                                        device=device
                                         )
     else:
         # Load model

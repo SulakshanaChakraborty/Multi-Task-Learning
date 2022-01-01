@@ -75,6 +75,7 @@ class H5ImageLoader(Dataset):
         self.bbox_h5 = h5py.File(bbox_file, 'r')
         self.classifcation_h5 = h5py.File(classification_file, 'r')
 
+
         self.dataset_list = list(self.img_h5.keys())[0]
         self.mask_list = list(self.mask_h5.keys())[0]
         self.bbox_list = list(self.bbox_h5.keys())[0]
@@ -83,7 +84,8 @@ class H5ImageLoader(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return 20 #self.img_h5[list(self.img_h5.keys())[0]].shape[0]
+     return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
+    # return 40
 
     def __getitem__(self, idx):
         image = self.img_h5[self.dataset_list][idx]

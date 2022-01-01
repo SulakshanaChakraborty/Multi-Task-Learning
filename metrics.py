@@ -1,22 +1,9 @@
 import torch
-
+from sklearn.metrics import jaccard_score,f1_score
+#from sklearn.metrics import 
 ###METRICS HAVE BEEN COPIED WILL BE NEEDED TO CHANGE
 
-def iou_pytorch(outputs,labels):
-  
-    outputs = outputs.squeeze(1)  
-    
-    intersection = (outputs & labels).float().sum((1, 2))  # Will be zero if Truth=0 or Prediction=0
-    union = (outputs | labels).float().sum((1, 2))         # Will be zzero if both are 0
 
-    eps=1e-4
-    
-
-    iou = (intersection + eps) / (union + eps)  # eps for numerical stability
-    
-    #thresholded = torch.clamp(20 * (iou - 0.5), 0, 10).ceil() / 10  # This is equal to comparing with thresolds
-    
-    return iou.mean().item()  # Or thresholded.mean() if you are interested in average across the batch
 
 EPS = 1e-10
 def nanmean(x):
