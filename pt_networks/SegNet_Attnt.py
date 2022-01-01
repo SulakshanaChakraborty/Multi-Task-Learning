@@ -248,7 +248,7 @@ class Decoder(nn.Module):
         return x
 
 segnet = SegNet()
-print(segnet) 
+
 # class Segnet(nn.Module):
 
 #     def __init__(self):
