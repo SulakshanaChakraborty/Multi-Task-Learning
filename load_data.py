@@ -111,15 +111,15 @@ class H5ImageLoader(Dataset):
 
         return image, {'mask': mask, 'bbox': bbox, 'classification': classification}
 
-    def add_noise(self, std=0.1, mean=0.0):
+    def add_noise(self, std=1.0, mean=0.0):
         # convert h5 to numpy
         hf = self.img_h5
         data = hf.get(self.dataset_list).value
 
-        # img =  # numpy-array of shape (N, M); dtype=np.uint8
-        # ...
-        mean = 0.0  # some constant
-        std = 1.0  # some constant (standard deviation)
+        # # img =  # numpy-array of shape (N, M); dtype=np.uint8
+        # # ...
+        # mean = 0.0  # some constant
+        # std = 1.0  # some constant (standard deviation)
         noisy_img = data + np.random.normal(mean, std, data.shape)
         noisy_img_clipped = np.clip(noisy_img, 0, 255)  # we might get out of bounds due to noise
 
