@@ -8,8 +8,8 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='Segnet1taskPretrainedVGGPooled/'
-date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
+log_name='SegnetAttention3taskPretrainedVGGPooled/'
+date='tuning_learning_rate_1e-03'
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device,soft_adapt = False):
@@ -108,31 +108,31 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
             train_loss.append(loss.item())
 
-          #  print(train_accuracy[i-1],"minibatch acc")
+            print(train_accuracy[i-1],"minibatch acc")
 
-            #train_label_loss.append(labels_loss.data.item())
+            train_label_loss.append(labels_loss.data.item())
             train_segmentation_loss.append(segmentation_loss.data.item())
 
 
-          #  train_bbox_loss.append(bboxes_loss.data.item())
+            train_bbox_loss.append(bboxes_loss.data.item())
             target_segmentation = torch.argmax(segmask, 1)
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             train_iou.append(iou.item())
             print(train_iou[i-1],"iou")
 
 
-            loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss + alpha[2]*labels_loss
-            train_loss.append(loss.item())
+            # loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss + alpha[2]*labels_loss
+            # train_loss.append(loss.item())
             loss.backward()
             
             optimizer.step()
-            running_iou += iou
-            running_loss += loss
+            # running_iou += iou
+            # running_loss += loss
 
-            if (i+1) % 100 == 0:
-                print(f"epoch {epoch+1}, minibatch {(i+1)}, running loss: {running_loss/(i+1)}, running iou: {running_iou/(i+1)}, running class accuracy:{train_accuracy[i-1]}")
-                running_iou = 0
-                running_loss = 0
+            # if (i+1) % 100 == 0:
+            #     print(f"epoch {epoch+1}, minibatch {(i+1)}, running loss: {running_loss/(i+1)}, running iou: {running_iou/(i+1)}, running class accuracy:{train_accuracy[i-1]}")
+            #     running_iou = 0
+            #     running_loss = 0
 
         for i, batch_data in enumerate(validation_loader, 1):
 
@@ -152,18 +152,18 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
                 target_bboxes=bbox)
         
 
-          #  pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
-          #  val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
-           # val_loss.append(loss.item())  
+            pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
+            val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
+            val_loss.append(loss.item())  
 
-           # val_label_loss.append(labels_loss.data.item())
+            val_label_loss.append(labels_loss.data.item())
             val_segmentation_loss.append(segmentation_loss.data.item()) 
             target_segmentation = torch.argmax(segmask, 1)
 
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             print(round(iou.item(),3),"iou")
             val_iou.append(iou.item())
-            #val_bbox_loss.append(bboxes_loss.data.item())  
+            val_bbox_loss.append(bboxes_loss.data.item())  
             
 
         time_epoch_vl=time.time()       
@@ -171,13 +171,13 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
       
         
 
-        epoch_segmentation_loss.append(np.mean(train_segmentation_loss))
-        epoch_bbox_loss.append(np.mean(train_bbox_loss))
-        epoch_label_loss.append(np.mean(train_label_loss))
-        # dynamicly updating weights of loss
-        if epoch >0:
-            alpha = soft_adapt(epoch,epoch_segmentation_loss,epoch_bbox_loss,epoch_label_loss)
-            print("alpha:",alpha)
+        # epoch_segmentation_loss.append(np.mean(train_segmentation_loss))
+        # epoch_bbox_loss.append(np.mean(train_bbox_loss))
+        # epoch_label_loss.append(np.mean(train_label_loss))
+        # # dynamicly updating weights of loss
+        # if epoch >0:
+        #     alpha = soft_adapt(epoch,epoch_segmentation_loss,epoch_bbox_loss,epoch_label_loss)
+        #     print("alpha:",alpha)
 
 
         print('----------------------------------------------------------------------------------')
