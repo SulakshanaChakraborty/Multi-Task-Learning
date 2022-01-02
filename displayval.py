@@ -18,11 +18,11 @@ device='cpu'
 train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
-                                                                                 batch_size=batch_size,
+                                                                                 batch_size=batch_size,noisy=False
                                                                                  )
 
 writer = SummaryWriter('runs/display_data_validation')
-data=iter(validation_loader)
+data=iter(train_loader)
 
 images,labels=data.next()
 

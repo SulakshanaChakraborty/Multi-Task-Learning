@@ -5,7 +5,7 @@ import numpy as np
 from collections.abc import Iterable
 
 class SegNet(nn.Module):
-    def __init__(self):
+    def __init__(self,noisy= True):
         super().__init__()
         channels = [3, 64, 128, 256, 512, 512] # 0th element: number of input chanels
 
@@ -35,7 +35,8 @@ class SegNet(nn.Module):
         #print(self.attention)
         self.linear_class=nn.Linear(512*8*8,2)  # binary classification task
         self.linear_bb= nn.Linear(512*8*8,4) # bounding box prediction task
-        self.decoder = Decoder() # animal segmentaion task
+        self.decoder = Decoder(noisy= True) # animal segmentaion task
+        self.noisy = noisy
     
     def vgg_pretrained(self,vgg16):
         layers = list(vgg16.features.children()) #Getting all features of vgg 
@@ -122,24 +123,29 @@ class SegNet(nn.Module):
                 attnt_arr[i][j][2] = self.attnt_shared[j](attnt_arr[i][j][1])
                 attnt_arr[i][j][2] = F.max_pool2d(attnt_arr[i][j][2], kernel_size=2, stride=2)
         
-        target_pred = self.decoder(attnt_arr[0][-1][-1],indices_arr,x_shapes_arr)
+        predictions = self.decoder(attnt_arr[0][-1][-1],indices_arr,x_shapes_arr)
         flat_c = self.flat(attnt_arr[1][-1][-1])
         flat_bb = self.flat(attnt_arr[2][-1][-1])
         aux_pred_c = self.linear_class(flat_c)
         aux_pred_bb = self.linear_bb(flat_bb)
+        if len(predictions)>0: 
+            target_seg,target_denoise = predictions
+            preds= (aux_pred_c,aux_pred_bb,target_seg,target_denoise)
 
-        return aux_pred_c,aux_pred_bb, target_pred
+        else: preds= (aux_pred_c,aux_pred_bb,predictions)
+
+        return preds
         
 
 class Decoder(nn.Module):
 
-    def __init__(self):
+    def __init__(self,noisy):
 
         super().__init__()
         self.layer_52_t=self.bn_conv_relu(512,512)
         self.layer_51_t=self.bn_conv_relu(512,512)
         self.layer_50_t=self.bn_conv_relu(512,512)
-
+        self.noisy = noisy
         
         self.layer_42_t=self.bn_conv_relu(512,512)
         self.layer_41_t=self.bn_conv_relu(512,512)
@@ -155,6 +161,8 @@ class Decoder(nn.Module):
     
         self.layer_11_t=self.bn_conv_relu(64,64)
         self.layer_10_t=self.bn_conv_relu(64,2) 
+        if self.noisy == True:
+            self.layer_10_denoising=self.bn_conv_relu(64,3) 
 
         self.upsample = nn.MaxUnpool2d(2, stride=2)
 
@@ -194,9 +202,13 @@ class Decoder(nn.Module):
         
         x=self.upsample(x,i1)
         x=self.layer_11_t(x)
-        x=self.layer_10_t(x)
+        x_seg=self.layer_10_t(x)
+        if self.noisy == True:
+            x_denoise=self.layer_10_denoising(x)
+            predictions = (x_seg,x_denoise)
+        else: predictions = x_seg
 
-        return x
+        return predictions
 
 segnet = SegNet()
 total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)

@@ -71,10 +71,12 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         train_iou=[]
         train_jaca=[]
         train_f1_arr=[]
+        train_denoise_iou = []
 
         train_bbox_loss=[]
         train_segmentation_loss=[]
         train_label_loss=[]
+        train_denoise_loss = []
 
         val_loss=[]
         val_accuracy=[]
@@ -95,14 +97,18 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             binary = torch.squeeze(labels['classification'].to(device))
             binary = binary.to(torch.long)
             bbox = labels['bbox'].to(device)
+
+            try:
+                denoised = labels['denoised'].to(device)
+            except: denoised = None
+
             bbox=bbox.float()
             optimizer.zero_grad()
-            classes, boxes, segmask = model(inputs)
-            loss,labels_loss,segmentation_loss,bboxes_loss= loss_criterion(input_labels=classes, input_segmentations=segmask, \
-                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
-                target_bboxes=bbox)
+            classes, boxes, segmask,denoised_pred = model(inputs)
+            loss,labels_loss,segmentation_loss,bboxes_loss,denoise_loss= loss_criterion(input_labels=classes, input_segmentations=segmask, \
+                input_bboxes=boxes,input_denoise = denoised_pred, target_labels=binary, target_segmentations=mask,
+                target_bboxes=bbox,target_denoise =denoised)
             
-        
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
             train_loss.append(loss.item())
@@ -116,21 +122,20 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             target_segmentation = torch.argmax(segmask, 1)
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             train_iou.append(iou.item())
-            print(train_iou[i-1],"iou")
+            train_denoise_loss.append(denoise_loss.data.item())
+            #print(train_iou[i-1],"iou")
+            train_denoise_iou.append(eval_metrics(denoised.cpu(),denoised_target.cpu(),2))
 
             mask_array=np.array(mask.cpu()).ravel()
-            predicted_array=target_segmentation.cpu().ravel()
-            print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac')
-            print(f1_score(mask_array,predicted_array),"skf1")
+            predicted_array=np.array(target_segmentation.cpu()).ravel()
+            # print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac')
+            # print(f1_score(mask_array,predicted_array),"skf1")
 
             train_jac=jaccard_score(mask_array,predicted_array,average='weighted')
             train_f1=f1_score(mask_array,predicted_array)
 
             train_jaca.append(train_jac)
             train_f1_arr.append(train_f1)
-
-
-
 
           #  loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss*0.0001 + alpha[2]*labels_loss
             train_loss.append(loss.item())
@@ -163,24 +168,22 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             val_segmentation_loss.append(segmentation_loss.data.item()) 
             target_segmentation = torch.argmax(segmask, 1)
 
-            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-            print(round(iou.item(),3),"iou")
+            val_mask_array=np.array(mask.cpu()).ravel()
+            val_predicted_array=np.array(target_segmentation.cpu()).ravel()
 
-            val_jac=jaccard_score(mask_array,predicted_array,average='weighted')
-            val_f1=f1_score(mask_array,predicted_array)
+            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
+           # print(round(iou.item(),3),"iou")
+
+            val_jac=jaccard_score(val_mask_array,val_predicted_array,average='weighted')
+            val_f1=f1_score(val_mask_array,val_predicted_array)
 
             val_jaca.append(val_jac)
             val_f1_arr.append(val_f1)
-            
-
-            
             val_iou.append(iou.item())
             val_bbox_loss.append(bboxes_loss.data.item())  
             
 
-        time_epoch_vl=time.time()       
-
-      
+        time_epoch_vl=time.time()            
         
 
         # epoch_segmentation_loss.append(np.mean(train_segmentation_loss))
