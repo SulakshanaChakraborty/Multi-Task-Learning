@@ -10,17 +10,18 @@ import torchvision.models as models
 
 import pt_networks.unet
 
-def get_model(model_type,device='cpu'):
 
-    
+def get_model(model_type, device='cpu', load_pre_trained_weights=False):
     if model_type == 'baseline':
         model = pt_networks.segnet.Segnet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg16_init(vgg16)
-        #model.load_state_dict(torch.load('Segnet3task3layer.pt'))
+        if load_pre_trained_weights:
+            model.load_state_dict(torch.load('Segnet3task3layer.pt'))
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.BaselineLoss(True, True,True)
-    if model_type == 'baseline_unet':
+        loss_fn = losses.BaselineLoss(True, True, True)
+
+    elif model_type == 'baseline_unet':
         model = pt_networks.unet.UNet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.00001)
         loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=False)
@@ -31,9 +32,10 @@ def get_model(model_type,device='cpu'):
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-3)
         loss_fn = losses.BaselineLoss(True, True, True)  # todo: update
-    elif model_type == 'mlt_hard':
 
+    elif model_type == 'mlt_hard':
         model, optimizer, loss_fn = 1, 2, 3  # todo: update
+
     elif model_type == 'mlt_gscnn':
         model, optimizer, loss_fn = pt_networks.GSCNN(), 2, 3  # todo: update
     else:
