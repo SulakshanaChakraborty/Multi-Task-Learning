@@ -48,7 +48,7 @@ def build_data_loader(data_path, pt_transforms, batch_size=16, noisy=False):
     image_loader = H5ImageLoader(img_file=images_filepath, mask_file=masks_filepath, bbox_file=bboxes_filepath,
                                  classification_file=labels_filepath, transform=pt_transforms,denoised_file = denoised_outputs_filepath)  # All data paths
     # Create pytorch loader
-    data_loader = DataLoader(image_loader, batch_size=batch_size, shuffle=True)
+    data_loader = DataLoader(image_loader, batch_size=batch_size, shuffle=True,num_workers=0)
 
     return data_loader
 

@@ -15,12 +15,19 @@ def run_cw2(train=True, test=False, visualize=True):
     validation_path = 'data/val/'
     test_path = 'data/test/'
     batch_size = 5
-    device='cpu'
+    device='cuda'
+
+    
  
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
-                                                                                 batch_size=batch_size,noisy=True)                                                                         
+                                                                                 batch_size=batch_size,noisy=True)  
+
+    # torch.save(train_loader, 'train_loader.pth')  
+    # torch.save(train_loader, 'validation_loader.pth')  
+    # torch.save(train_loader, 'test_loader.pth')  
+    # jjj                                                             
 
     ###############################
     # Train Model
