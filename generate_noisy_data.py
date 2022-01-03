@@ -18,6 +18,7 @@ def add_noise(data_path, std_high=20, mean_high=10):
         noisy_img = img + noise_random_normal
         images_noisy_filepath = pathlib.Path(data_path + '/noisy_data.h5')
         noisy_img_clipped = np.clip(noisy_img, 0, 255) 
+        #noisy_img_clipped = np.transpose(noisy_img_clipped,(0,3,1,2))
         h5_noisy = h5py.File(images_noisy_filepath, 'w')
         h5_noisy.create_dataset("noisy_data", data=noisy_img_clipped)
         h5_noisy.close()

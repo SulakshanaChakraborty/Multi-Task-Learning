@@ -130,11 +130,12 @@ class SegNet(nn.Module):
         aux_pred_bb = self.linear_bb(flat_bb)
         if len(predictions)>0: 
             target_seg,target_denoise = predictions
-            preds= (aux_pred_c,aux_pred_bb,target_seg,target_denoise)
 
-        else: preds= (aux_pred_c,aux_pred_bb,predictions)
+        else: 
+            target_seg = predictions
+            target_denoise = None
 
-        return preds
+        return aux_pred_c,aux_pred_bb,target_seg,target_denoise
         
 
 class Decoder(nn.Module):

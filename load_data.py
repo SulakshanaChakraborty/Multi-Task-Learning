@@ -18,13 +18,13 @@ def create_data_loaders(train_path, validation_path, test_path, batch_size=16, n
     # Validation data
     validation_transform = train_transform
     validation_loader = build_data_loader(data_path=validation_path, pt_transforms=validation_transform,
-                                          batch_size=batch_size, noisy=False)
+                                          batch_size=batch_size, noisy=True)
     # Test data
     test_transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
          ])
-    test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size, noisy=False)
+    test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size, noisy=True)
 
     return train_loader, validation_loader, test_loader
 
@@ -101,14 +101,11 @@ class H5ImageLoader(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return 5# self.img_h5[list(self.img_h5.keys())[0]].shape[0]
+        return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
 
     # return 40
 
-    def __getitem__(self, idx):
-
-        
-        
+    def __getitem__(self, idx):      
         
         image = self.img_h5[self.dataset_list][idx]
         mask = self.mask_h5[self.mask_list][idx]
@@ -126,6 +123,9 @@ class H5ImageLoader(Dataset):
         labels_dict = {'mask': mask, 'bbox': bbox, 'classification': classification}
         if self.create_denoised_set:
             denoised = self.denoised_h5[self.denoised_list][idx]
+            if self.transform:
+                denoised = self.transform(denoised).to(
+                    torch.float32)
             labels_dict['denoised'] = denoised
 
         return image,labels_dict

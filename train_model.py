@@ -72,6 +72,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         train_jaca=[]
         train_f1_arr=[]
         train_denoise_iou = []
+        train_denoise_jac =[]
 
         train_bbox_loss=[]
         train_segmentation_loss=[]
@@ -86,6 +87,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         val_label_loss=[]
         val_jaca=[]
         val_f1_arr=[]
+        val_denoise_loss =[]
        
         
         for i, batch_data in enumerate(train_loader, 1):
@@ -99,15 +101,15 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             bbox = labels['bbox'].to(device)
 
             try:
-                denoised = labels['denoised'].to(device)
-            except: denoised = None
+                denoised_target = labels['denoised'].to(device)
+            except: denoised_target = None
 
             bbox=bbox.float()
             optimizer.zero_grad()
             classes, boxes, segmask,denoised_pred = model(inputs)
             loss,labels_loss,segmentation_loss,bboxes_loss,denoise_loss= loss_criterion(input_labels=classes, input_segmentations=segmask, \
                 input_bboxes=boxes,input_denoise = denoised_pred, target_labels=binary, target_segmentations=mask,
-                target_bboxes=bbox,target_denoise =denoised)
+                target_bboxes=bbox,target_denoise =denoised_target)
             
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
@@ -123,18 +125,23 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
             train_iou.append(iou.item())
             train_denoise_loss.append(denoise_loss.data.item())
-            #print(train_iou[i-1],"iou")
-            train_denoise_iou.append(eval_metrics(denoised.cpu(),denoised_target.cpu(),2))
+            print(train_iou[i-1],"iou")
+            print(train_denoise_loss[i-1],"denoising loss")
+            #train_denoise_iou.append(eval_metrics(denoised_pred.cpu(),denoised_target.cpu(),2))
 
             mask_array=np.array(mask.cpu()).ravel()
             predicted_array=np.array(target_segmentation.cpu()).ravel()
-            # print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac')
-            # print(f1_score(mask_array,predicted_array),"skf1")
+
+            print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac segmentation')
+            # print(jaccard_score(denoise_pred_array,denoised_target_array,average='weighted'),'denoising segmentation')
+            print(f1_score(mask_array,predicted_array),"skf1")
 
             train_jac=jaccard_score(mask_array,predicted_array,average='weighted')
+            #train_jac_denoise = jaccard_score(denoise_pred_array,denoised_target_array,average='weighted')
             train_f1=f1_score(mask_array,predicted_array)
 
             train_jaca.append(train_jac)
+            train_denoise_jac.append(train_jaca)
             train_f1_arr.append(train_f1)
 
           #  loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss*0.0001 + alpha[2]*labels_loss
@@ -154,15 +161,17 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             binary = binary.to(torch.long)
             bbox = labels['bbox'].to(device)
             bbox=bbox.float()            
-            classes, boxes, segmask = model(inputs)
 
-            loss,labels_loss,segmentation_loss,bboxes_loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
-                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
-                target_bboxes=bbox)
-        
+            classes, boxes, segmask,denoised_pred = model(inputs)
+            loss,labels_loss,segmentation_loss,bboxes_loss,denoise_loss= loss_criterion(input_labels=classes, input_segmentations=segmask, \
+                input_bboxes=boxes,input_denoise = denoised_pred, target_labels=binary, target_segmentations=mask,
+                target_bboxes=bbox,target_denoise =denoised_target)
+
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
             val_loss.append(loss.item())  
+            val_denoise_loss.append(denoise_loss.data.item())
+            print(train_denoise_loss[i-1],"denoising loss")
 
             val_label_loss.append(labels_loss.data.item())
             val_segmentation_loss.append(segmentation_loss.data.item()) 
@@ -172,7 +181,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             val_predicted_array=np.array(target_segmentation.cpu()).ravel()
 
             iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-           # print(round(iou.item(),3),"iou")
+            print(round(iou.item(),3),"iou")
+            print()
 
             val_jac=jaccard_score(val_mask_array,val_predicted_array,average='weighted')
             val_f1=f1_score(val_mask_array,val_predicted_array)
@@ -201,6 +211,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         print("Loss: ",round(np.mean(train_loss),3),"Train Accu: ",round(np.mean(train_accuracy),3))
         print("IOU: ",round(np.mean(train_iou),3))
         print("BBOX-loss: ",round(np.mean(train_bbox_loss),3))
+        print("Denoising-loss: ",round(np.mean(train_denoise_loss),3))
         print("Segmnetaiton-loss",round(np.mean(train_segmentation_loss),3))
         print("Label-loss",round(np.mean(train_label_loss),3))
         print("Jac",round(np.mean(train_jaca),3))
@@ -210,6 +221,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         print("Loss: ",round(np.mean(val_loss),3),"Val Accu: ",round(np.mean(val_accuracy),3))
         print("IOU: ",round(np.mean(val_iou),3))
         print("BBOX-loss: ",round(np.mean(val_bbox_loss),3))
+        print("Denoising-loss: ",round(np.mean(val_denoise_loss),3))
         print("Segmnetaiton-loss",round(np.mean(val_segmentation_loss),3))
         print("Label-loss",round(np.mean(val_label_loss),3))
         print("Jac",round(np.mean(val_jaca),3))
