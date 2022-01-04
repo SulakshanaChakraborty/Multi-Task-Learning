@@ -10,7 +10,7 @@ def create_data_loaders(train_path, validation_path, test_path, batch_size=16):
     train_transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
-        ])
+         ])
     train_loader = build_data_loader(data_path=train_path, pt_transforms=train_transform, batch_size=batch_size)
     # Validation data
     validation_transform = train_transform
@@ -75,7 +75,6 @@ class H5ImageLoader(Dataset):
         self.bbox_h5 = h5py.File(bbox_file, 'r')
         self.classifcation_h5 = h5py.File(classification_file, 'r')
 
-
         self.dataset_list = list(self.img_h5.keys())[0]
         self.mask_list = list(self.mask_h5.keys())[0]
         self.bbox_list = list(self.bbox_h5.keys())[0]
@@ -84,7 +83,8 @@ class H5ImageLoader(Dataset):
         self.transform = transform
 
     def __len__(self):
-     return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
+        return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
+
     # return 40
 
     def __getitem__(self, idx):
@@ -92,16 +92,11 @@ class H5ImageLoader(Dataset):
         mask = self.mask_h5[self.mask_list][idx]
         bbox = self.bbox_h5[self.bbox_list][idx]
         classification = self.classifcation_h5[self.classification_list][idx]
-      
+
         if self.transform:
-        #    # mask_transform = transforms.Compose(
-        #      [transforms.ToTensor(),
-        #       transforms.Resize((64,64))]) 
             image = self.transform(image).to(
                 torch.float32)  # float32 for pytorch compatibility (weights initialized to the same)
 
-            #mask= mask_transform(mask)
-
-        
+        # mask= mask_transform(mask)
 
         return image, {'mask': mask, 'bbox': bbox, 'classification': classification}

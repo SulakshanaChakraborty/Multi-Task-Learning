@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import time
 from metrics import eval_metrics, jaccard_index
-from sklearn.metrics import jaccard_score,f1_score
+from sklearn.metrics import jaccard_score, f1_score
 import pt_networks.segnet
 import torch.optim as optim
 from datetime import datetime
@@ -64,31 +64,33 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
     alpha = torch.ones(3)
 
+    # Iterate over whole dataset
     for epoch in range(epochs):
 
+        # Set list to monitor performance
         time_epoch = time.time()
         train_loss = []
         train_accuracy = []
-        train_iou=[]
-        train_jaca=[]
-        train_f1_arr=[]
+        train_iou = []
+        train_jaca = []
+        train_f1_arr = []
 
-        train_bbox_loss=[]
-        train_segmentation_loss=[]
-        train_label_loss=[]
+        train_bbox_loss = []
+        train_segmentation_loss = []
+        train_label_loss = []
 
-        val_loss=[]
-        val_accuracy=[]
-        val_iou=[]
-        val_bbox_loss=[]
-        val_segmentation_loss=[]
-        val_label_loss=[]
-        val_jaca=[]
-        val_f1_arr=[]
-       
-        
+        val_loss = []
+        val_accuracy = []
+        val_iou = []
+        val_bbox_loss = []
+        val_segmentation_loss = []
+        val_label_loss = []
+        val_jaca = []
+        val_f1_arr = []
+
+        # Iterate over mini-batches
         for i, batch_data in enumerate(train_loader, 1):
-     
+            # Format data
             inputs, labels = batch_data
             inputs = inputs.to(device)
             mask = torch.squeeze(labels['mask'].to(device))
@@ -96,26 +98,27 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             binary = torch.squeeze(labels['classification'].to(device))
             binary = binary.to(torch.long)
             bbox = labels['bbox'].to(device)
-            bbox=bbox.float()
+            bbox = bbox.float()
+
+            # Forward pass
             optimizer.zero_grad()
             classes, boxes, segmask = model(inputs)
-            loss,labels_loss,segmentation_loss,bboxes_loss= loss_criterion(input_labels=classes, input_segmentations=segmask, \
-                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
-                target_bboxes=bbox)
-            
-        
-            pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
-            train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
-            train_loss.append(loss.item())
 
            # print(train_accuracy[i-1],"minibatch acc")
 
+            train_loss.append(loss.item())
             train_label_loss.append(labels_loss.data.item())
             train_segmentation_loss.append(segmentation_loss.data.item())
-
             train_bbox_loss.append(bboxes_loss.data.item())
+
+            # Binary classification metrics.
+            pred_class = np.argmax(classes.detach().cpu().numpy(), axis=1)
+            train_accuracy.append(np.sum((binary.detach().cpu().numpy() == pred_class).astype(int)) / len(binary))
+            print(f'Minibatch Acc: {train_accuracy[i - 1]}')
+
+            # Segmentation metrics.
             target_segmentation = torch.argmax(segmask, 1)
-            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
+            iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
             train_iou.append(iou.item())
             #print(train_iou[i-1],"iou")
 
@@ -124,21 +127,21 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
           #  print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac')
            # print(f1_score(mask_array,predicted_array),"skf1")
 
-            train_jac=jaccard_score(mask_array,predicted_array,average='weighted')
-            train_f1=f1_score(mask_array,predicted_array)
+            train_jac = jaccard_score(mask_array, predicted_array, average='weighted')
+            train_f1 = f1_score(mask_array, predicted_array)
 
             train_jaca.append(train_jac)
             train_f1_arr.append(train_f1)
 
-
-
-
-          #  loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss*0.0001 + alpha[2]*labels_loss
+            # Soft weights update
+            #  loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss*0.0001 + alpha[2]*labels_loss
             train_loss.append(loss.item())
+
+            # Backward propagations
             loss.backward()
             optimizer.step()
-          
 
+        # Compute validations metrics
         for i, batch_data in enumerate(validation_loader, 1):
 
          with torch.no_grad():
@@ -190,49 +193,53 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         # epoch_segmentation_loss.append(np.mean(train_segmentation_loss))
         # epoch_bbox_loss.append(0.0001*np.mean(train_bbox_loss))
         # epoch_label_loss.append(np.mean(train_label_loss))
-        #dynamicly updating weights of loss
+
+        # Dynamically updating weights of loss
         # if epoch >0:
         #     alpha = soft_adapt(epoch,epoch_segmentation_loss,epoch_bbox_loss,epoch_label_loss)
         #     print("alpha:",alpha)
 
+        # Store running time per epoch
+        time_epoch_vl = time.time()
 
+        # Report training status
         print('----------------------------------------------------------------------------------')
-        print(f"Epoch: {epoch+1} Time taken : {round(time_epoch_vl-time_epoch,3)} seconds")
+        print(f"Epoch: {epoch + 1} Time taken : {round(time_epoch_vl - time_epoch, 3)} seconds")
         print("-----------------------Training Metrics-------------------------------------------")
-        print("Loss: ",round(np.mean(train_loss),3),"Train Accu: ",round(np.mean(train_accuracy),3))
-        print("IOU: ",round(np.mean(train_iou),3))
-        print("BBOX-loss: ",round(np.mean(train_bbox_loss),3))
-        print("Segmnetaiton-loss",round(np.mean(train_segmentation_loss),3))
-        print("Label-loss",round(np.mean(train_label_loss),3))
-        print("Jac",round(np.mean(train_jaca),3))
-        print("F1s",round(np.mean(train_f1_arr),3))
+        print("Loss: ", round(np.mean(train_loss), 3), "Train Accu: ", round(np.mean(train_accuracy), 3))
+        print("IOU: ", round(np.mean(train_iou), 3))
+        print("BBOX-loss: ", round(np.mean(train_bbox_loss), 3))
+        print("Segmnetaiton-loss", round(np.mean(train_segmentation_loss), 3))
+        print("Label-loss", round(np.mean(train_label_loss), 3))
+        print("Jac", round(np.mean(train_jaca), 3))
+        print("F1s", round(np.mean(train_f1_arr), 3))
 
         print("-----------------------Validation Metrics-------------------------------------------")
-        print("Loss: ",round(np.mean(val_loss),3),"Val Accu: ",round(np.mean(val_accuracy),3))
-        print("IOU: ",round(np.mean(val_iou),3))
-        print("BBOX-loss: ",round(np.mean(val_bbox_loss),3))
-        print("Segmnetaiton-loss",round(np.mean(val_segmentation_loss),3))
-        print("Label-loss",round(np.mean(val_label_loss),3))
-        print("Jac",round(np.mean(val_jaca),3))
-        print("F1s",round(np.mean(val_f1_arr),3))
+        print("Loss: ", round(np.mean(val_loss), 3), "Val Accu: ", round(np.mean(val_accuracy), 3))
+        print("IOU: ", round(np.mean(val_iou), 3))
+        print("BBOX-loss: ", round(np.mean(val_bbox_loss), 3))
+        print("Segmnetaiton-loss", round(np.mean(val_segmentation_loss), 3))
+        print("Label-loss", round(np.mean(val_label_loss), 3))
+        print("Jac", round(np.mean(val_jaca), 3))
+        print("F1s", round(np.mean(val_f1_arr), 3))
 
-        writer.add_scalar('Train-Epoch-Accuracy',round(np.mean(train_accuracy),3), epoch)
-        writer.add_scalar('Train-Epoch-IOU',round(np.mean(train_iou),3), epoch)
-        writer.add_scalar('Train-Epoch-BBOX',round(np.mean(train_bbox_loss),3), epoch)
-        writer.add_scalar('Train-Epoch-Seg-loss',round(np.mean(train_segmentation_loss),3), epoch)
-        writer.add_scalar('Train-Epoch-label-loss',round(np.mean(train_label_loss),3), epoch)
-        writer.add_scalar('Train-Epoch-JAC',round(np.mean(train_jaca),3), epoch)
-        writer.add_scalar('Train-Epoch-f1',round(np.mean(train_f1_arr),3), epoch)
+        # Add values to tensorboard.
+        writer.add_scalar('Train-Epoch-Accuracy', round(np.mean(train_accuracy), 3), epoch)
+        writer.add_scalar('Train-Epoch-IOU', round(np.mean(train_iou), 3), epoch)
+        writer.add_scalar('Train-Epoch-BBOX', round(np.mean(train_bbox_loss), 3), epoch)
+        writer.add_scalar('Train-Epoch-Seg-loss', round(np.mean(train_segmentation_loss), 3), epoch)
+        writer.add_scalar('Train-Epoch-label-loss', round(np.mean(train_label_loss), 3), epoch)
+        writer.add_scalar('Train-Epoch-JAC', round(np.mean(train_jaca), 3), epoch)
+        writer.add_scalar('Train-Epoch-f1', round(np.mean(train_f1_arr), 3), epoch)
 
-        writer.add_scalar('Val-Epoch-Accuracy',round(np.mean(val_accuracy),3), epoch)
-        writer.add_scalar('Val-Epoch-IOU',round(np.mean(val_iou),3), epoch)
-        writer.add_scalar('Val-Epoch-BBOX',round(np.mean(val_bbox_loss),3), epoch)
-        writer.add_scalar('Val-Epoch-Seg-loss',round(np.mean(val_segmentation_loss),3), epoch)
-        writer.add_scalar('Val-Epoch-label-loss',round(np.mean(val_label_loss),3), epoch)
-        writer.add_scalar('val-Epoch-JAC',round(np.mean(val_jaca),3), epoch)
-        writer.add_scalar('va,-Epoch-f1',round(np.mean(val_f1_arr),3), epoch)
-   
-    
+        writer.add_scalar('Val-Epoch-Accuracy', round(np.mean(val_accuracy), 3), epoch)
+        writer.add_scalar('Val-Epoch-IOU', round(np.mean(val_iou), 3), epoch)
+        writer.add_scalar('Val-Epoch-BBOX', round(np.mean(val_bbox_loss), 3), epoch)
+        writer.add_scalar('Val-Epoch-Seg-loss', round(np.mean(val_segmentation_loss), 3), epoch)
+        writer.add_scalar('Val-Epoch-label-loss', round(np.mean(val_label_loss), 3), epoch)
+        writer.add_scalar('val-Epoch-JAC', round(np.mean(val_jaca), 3), epoch)
+        writer.add_scalar('va,-Epoch-f1', round(np.mean(val_f1_arr), 3), epoch)
+
         # if round(np.mean(val_iou),3) > best_val_iou: #and round(np.mean(val_accuracy),3) > best_val_accuracy:
 
         #  best_val_iou=round(np.mean(val_iou),3)

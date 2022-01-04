@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
+from collections.abc import Iterable
 
 class SegNet(nn.Module):
     def __init__(self):
@@ -31,11 +32,43 @@ class SegNet(nn.Module):
         self.attnt_shared.append(self.bn_conv_relu(channels[-1], channels[-1]))
         
         self.flat=nn.Flatten()
-        print(self.attention)
+        #print(self.attention)
         self.linear_class=nn.Linear(512*8*8,2)  # binary classification task
         self.linear_bb= nn.Linear(512*8*8,4) # bounding box prediction task
         self.decoder = Decoder() # animal segmentaion task
     
+    def vgg_pretrained(self,vgg16):
+        layers = list(vgg16.features.children()) #Getting all features of vgg 
+        vgg_layers = []
+        for layer in layers:
+            if isinstance(layer, nn.Conv2d):
+                vgg_layers.append(layer)
+
+        encoder_layers = []
+        for layers in self.encoder:
+            for l in layers:
+                for laye in l:
+                    if isinstance(laye,Iterable):
+                        for h in laye:
+                            if isinstance(h, nn.Conv2d):
+                                encoder_layers.append(h)
+                    else:
+                        if isinstance(laye, nn.Conv2d): 
+                            encoder_layers.append(laye)
+
+        print("encoder_layers len",len(encoder_layers))
+        print("vgg_layers len",len(vgg_layers))
+
+        for layer1, layer2 in zip(vgg_layers, encoder_layers):
+            print("############")
+            print("layer_vgg:",layer1)
+            print("layer_encoder:",layer2)
+            print("############")
+            
+
+            layer2.weight.data = layer1.weight.data
+            layer2.bias.data = layer1.bias.data
+            
     def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
 
         layer=[]
@@ -166,7 +199,9 @@ class Decoder(nn.Module):
         return x
 
 segnet = SegNet()
+total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
 print(segnet) 
+print("Total number of parameters: ",total_param)
 
         
 
