@@ -13,15 +13,15 @@ def get_model(model_type,device='cpu'):
 
     
     if model_type == 'baseline':
+   
         model = pt_networks.segnet.Segnet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg16_init(vgg16)
         #model.load_state_dict(torch.load('Segnet3task3layer.pt'))
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.BaselineLoss(False, True,False)
-        optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
-        loss_fn = losses.BaselineLoss(True, True, False)
-    if model_type == 'baseline_unet':
+        loss_fn = losses.BaselineLoss(True, True,False)
+       
+    elif model_type == 'baseline_unet':
         model = pt_networks.unet.UNet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.00001)
         loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=False)

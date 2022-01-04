@@ -14,7 +14,7 @@ def run_cw2(train=True, test=False, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 5
+    batch_size = 4
     device='cuda'
  
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,

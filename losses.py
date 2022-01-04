@@ -12,8 +12,8 @@ class BaselineLoss(nn.Module):
         ######################
         # Define weights
         ######################
-        device = 'cpu'
-        self.weights = torch.tensor([0.5, 1], requires_grad=True).to(device)
+        
+       
 
         ######################
         # Defines losses
@@ -27,27 +27,28 @@ class BaselineLoss(nn.Module):
                 target_bboxes):
 
         # Loss for labels.
+        device = 'cuda'
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = torch.zeros(1, requires_grad=True)
+            labels_loss = torch.zeros(1, requires_grad=True).to(device)
 
        # Loss for segmentations.
         if self.flag_segmentations:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = torch.zeros(1, requires_grad=True)
+            segmentations_loss = torch.zeros(1, requires_grad=True).to(device)
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = torch.zeros(1, requires_grad=True)
+            bboxes_loss = torch.zeros(1, requires_grad=True).to(device)
 
         #    loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         #    loss = torch.stack([labels_loss, segmentations_loss])
 
-        loss = labels_loss + segmentations_loss + 0.0001 * bboxes_loss
+        loss = labels_loss + 20*segmentations_loss +  0.00007*bboxes_loss*2
 
 
         # print(loss,"total loss")
