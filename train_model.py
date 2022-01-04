@@ -9,7 +9,7 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='Segnet1taskPretrainedFixedmetric/'
+log_name='Segnet3taskPretrainedFixedmetricAblationClass/'
 #date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
 date='200102bbox0.00007'
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
@@ -108,7 +108,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             train_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
             train_loss.append(loss.item())
 
-            print(train_accuracy[i-1],"minibatch acc")
+           # print(train_accuracy[i-1],"minibatch acc")
 
             train_label_loss.append(labels_loss.data.item())
             train_segmentation_loss.append(segmentation_loss.data.item())
@@ -237,5 +237,5 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
      #    best_val_accuracy=round(np.mean(val_accuracy),3)
-        torch.save(model.state_dict(), 'Segnet1taskPretrainedFixedmetric20020007.pt')
+        torch.save(model.state_dict(), 'Segnet3taskPretrainedFixedmetricAblationClass.pt')
       
