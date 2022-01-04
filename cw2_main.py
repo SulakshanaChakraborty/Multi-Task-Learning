@@ -14,18 +14,21 @@ def run_cw2(train=True, test=False, visualize=True):
     validation_path = 'data/val/'
     test_path = 'data/test/'
     batch_size = 5
-    device = 'cuda'
+    device = 'cpu'
+
+    opencv_filters = True
 
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
                                                                                  test_path=test_path,
                                                                                  batch_size=batch_size,
+                                                                                 opencv_filters=opencv_filters,
                                                                                  )
 
     ###############################
     # Train Model
     ###############################
-    model_type = 'mlt_attention'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
+    model_type = 'opencv_filter'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn' or 'opencv_filter'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
     model_path = 'model.pth'  # todo: update this as a parameter.
     if train:
@@ -35,7 +38,8 @@ def run_cw2(train=True, test=False, visualize=True):
                                         validation_loader=validation_loader,
                                         model=model, optimizer=optimizer, loss_criterion=loss_criterion,
                                         epochs=30,
-                                        device=device
+                                        device=device,
+                                        opencv_filters=opencv_filters,
                                         )
     else:
         # Load model

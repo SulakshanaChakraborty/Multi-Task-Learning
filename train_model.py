@@ -3,7 +3,7 @@ import torch
 import numpy as np
 import time
 from metrics import eval_metrics, jaccard_index
-from sklearn.metrics import jaccard_score, f1_score
+# from sklearn.metrics import jaccard_score, f1_score
 import pt_networks.segnet
 import torch.optim as optim
 from datetime import datetime
@@ -15,7 +15,7 @@ writer = SummaryWriter('logs/{}{}'.format(log_name, date))
 
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device,
-                soft_adapt=False):
+                soft_adapt=False, opencv_filters=False):
     best_val_accuracy = 0
     best_val_iou = 0
     k = 4
@@ -40,12 +40,14 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         train_bbox_loss = []
         train_segmentation_loss = []
         train_label_loss = []
+        train_filters_loss = []
 
         val_loss = []
         val_accuracy = []
         val_iou = []
         val_bbox_loss = []
         val_segmentation_loss = []
+        val_filters_loss = []
         val_label_loss = []
         val_jaca = []
         val_f1_arr = []
@@ -62,21 +64,30 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             bbox = labels['bbox'].to(device)
             bbox = bbox.float()
 
+            # Add opencv filter data
+            opencv_filter = labels['canny'].to(device)
+            opencv_filter = opencv_filter.to(torch.long).unsqueeze(dim=1)
+
             # Forward pass
             optimizer.zero_grad()
-            classes, boxes, segmask = model(inputs)
+            classes, boxes, segmask, opencv_pred = model(inputs)
 
             # Loss computation
-            loss, labels_loss, segmentation_loss, bboxes_loss = loss_criterion(input_labels=classes,
-                                                                               input_segmentations=segmask,
-                                                                               input_bboxes=boxes, target_labels=binary,
-                                                                               target_segmentations=mask,
-                                                                               target_bboxes=bbox)
+            loss, labels_loss, segmentation_loss, bboxes_loss, filters_loss = loss_criterion(input_labels=classes,
+                                                                                             input_segmentations=segmask,
+                                                                                             input_bboxes=boxes,
+                                                                                             input_filters=opencv_pred,
+                                                                                             target_labels=binary,
+                                                                                             target_segmentations=mask,
+                                                                                             target_bboxes=bbox,
+                                                                                             target_filters=opencv_filter,
+                                                                                             )
 
             train_loss.append(loss.item())
             train_label_loss.append(labels_loss.data.item())
             train_segmentation_loss.append(segmentation_loss.data.item())
             train_bbox_loss.append(bboxes_loss.data.item())
+            train_filters_loss.append(filters_loss.data.item())
 
             # Binary classification metrics.
             pred_class = np.argmax(classes.detach().cpu().numpy(), axis=1)
@@ -89,16 +100,11 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             train_iou.append(iou.item())
             print(f'Minibatch IOU: {train_iou[i - 1]}')
 
-            mask_array = np.array(mask.cpu()).ravel()
-            predicted_array = target_segmentation.cpu().ravel()
-            print(jaccard_score(mask_array, predicted_array, average='weighted'), 'skjac')
-            print(f1_score(mask_array, predicted_array), "skf1")
-
-            train_jac = jaccard_score(mask_array, predicted_array, average='weighted')
-            train_f1 = f1_score(mask_array, predicted_array)
-
-            train_jaca.append(train_jac)
-            train_f1_arr.append(train_f1)
+            # Opencv filter metrics
+            # target_segmentation = torch.argmax(segmask, 1)
+            # iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
+            # train_iou.append(iou.item())
+            # print(f'Minibatch IOU: {train_iou[i - 1]}')
 
             # Soft weights update
             #  loss = alpha[0]*segmentation_loss + alpha[1]*bboxes_loss*0.0001 + alpha[2]*labels_loss
@@ -121,19 +127,29 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
                 bbox = labels['bbox'].to(device)
                 bbox = bbox.float()
 
+                # Add opencv filter data
+                opencv_filter = labels['canny'].to(device)
+                opencv_filter = opencv_filter.to(torch.long)
+
                 # Model Inference
-                classes, boxes, segmask = model(inputs)
+                classes, boxes, segmask, opencv_pred = model(inputs)
 
                 # Loss computation
-                loss, labels_loss, segmentation_loss, bboxes_loss = loss_criterion(input_labels=classes,
-                                                                                   input_segmentations=segmask,
-                                                                                   input_bboxes=boxes,
-                                                                                   target_labels=binary,
-                                                                                   target_segmentations=mask,
-                                                                                   target_bboxes=bbox)
+                loss, labels_loss, segmentation_loss, bboxes_loss, filters_loss = \
+                    loss_criterion(input_labels=classes,
+                                   input_segmentations=segmask,
+                                   input_bboxes=boxes,
+                                   input_filters=opencv_pred,
+                                   target_labels=binary,
+                                   target_segmentations=mask,
+                                   target_bboxes=bbox,
+                                   target_filters=opencv_filter,
+                                   )
+
                 val_loss.append(loss.item())
                 val_label_loss.append(labels_loss.data.item())
                 val_segmentation_loss.append(segmentation_loss.data.item())
+                val_filters_loss.append(filters_loss.data.item())
 
                 # Binary classification metrics.
                 pred_class = np.argmax(classes.detach().cpu().numpy(), axis=1)
@@ -144,11 +160,11 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
                 iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
                 print(f'Validation IOU: {iou.item():.3f}')
 
-                val_jac = jaccard_score(mask_array, predicted_array, average='weighted')
-                val_f1 = f1_score(mask_array, predicted_array)
-
-                val_jaca.append(val_jac)
-                val_f1_arr.append(val_f1)
+                # val_jac = jaccard_score(mask_array, predicted_array, average='weighted')
+                # val_f1 = f1_score(mask_array, predicted_array)
+                #
+                # val_jaca.append(val_jac)
+                # val_f1_arr.append(val_f1)
 
                 val_iou.append(iou.item())
                 val_bbox_loss.append(bboxes_loss.data.item())

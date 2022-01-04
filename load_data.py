@@ -5,37 +5,44 @@ import torchvision.transforms as transforms
 import pathlib
 
 
-def create_data_loaders(train_path, validation_path, test_path, batch_size=16):
+def create_data_loaders(train_path, validation_path, test_path, batch_size=16, opencv_filters=False):
     # Train data
     train_transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
          ])
-    train_loader = build_data_loader(data_path=train_path, pt_transforms=train_transform, batch_size=batch_size)
+    train_loader = build_data_loader(data_path=train_path, pt_transforms=train_transform, batch_size=batch_size,
+                                     opencv_filters=opencv_filters)
     # Validation data
     validation_transform = train_transform
     validation_loader = build_data_loader(data_path=validation_path, pt_transforms=validation_transform,
-                                          batch_size=batch_size)
+                                          batch_size=batch_size, opencv_filters=opencv_filters)
     # Test data
     test_transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
          ])
-    test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size)
+    test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size,
+                                    opencv_filters=opencv_filters)
 
     return train_loader, validation_loader, test_loader
 
 
-def build_data_loader(data_path, pt_transforms, batch_size=16):
+def build_data_loader(data_path, pt_transforms, batch_size=16, opencv_filters=False):
     # Define paths
     images_filepath = pathlib.Path(data_path + '/images.h5')
     masks_filepath = pathlib.Path(data_path + '/masks.h5')
     bboxes_filepath = pathlib.Path(data_path + '/bboxes.h5')
     labels_filepath = pathlib.Path(data_path + '/binary.h5')
+    if opencv_filters:
+        canny_filepath = pathlib.Path(data_path + '/canny_filter.h5')
+    else:
+        canny_filepath = None
 
     # Create loader
     image_loader = H5ImageLoader(img_file=images_filepath, mask_file=masks_filepath, bbox_file=bboxes_filepath,
-                                 classification_file=labels_filepath, transform=pt_transforms)  # All data paths
+                                 classification_file=labels_filepath, transform=pt_transforms,
+                                 canny_file=canny_filepath)  # All data paths
     # Create pytorch loader
     data_loader = DataLoader(image_loader, batch_size=batch_size, shuffle=True)
 
@@ -58,7 +65,7 @@ class H5ImageLoader(Dataset):
 
     """
 
-    def __init__(self, img_file, mask_file, bbox_file, classification_file, transform):
+    def __init__(self, img_file, mask_file, bbox_file, classification_file, transform, canny_file=None):
         """
 
         @params:
@@ -81,11 +88,14 @@ class H5ImageLoader(Dataset):
         self.classification_list = list(self.classifcation_h5.keys())[0]
 
         self.transform = transform
+        self.canny_file = canny_file
+
+        if canny_file is not None:
+            self.canny_h5 = h5py.File(canny_file, 'r')
+            self.canny_list = list(self.canny_h5.keys())[0]
 
     def __len__(self):
         return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
-
-    # return 40
 
     def __getitem__(self, idx):
         image = self.img_h5[self.dataset_list][idx]
@@ -97,6 +107,9 @@ class H5ImageLoader(Dataset):
             image = self.transform(image).to(
                 torch.float32)  # float32 for pytorch compatibility (weights initialized to the same)
 
-        # mask= mask_transform(mask)
-
-        return image, {'mask': mask, 'bbox': bbox, 'classification': classification}
+        # Return input and output for the network.
+        if self.canny_file:
+            canny = self.canny_h5[self.canny_list][idx]
+            return image, {'mask': mask, 'bbox': bbox, 'classification': classification, 'canny': canny}
+        else:
+            return image, {'mask': mask, 'bbox': bbox, 'classification': classification}

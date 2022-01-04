@@ -1,5 +1,5 @@
 import torch
-from sklearn.metrics import jaccard_score,f1_score
+# from sklearn.metrics import jaccard_score,f1_score
 #from sklearn.metrics import 
 ###METRICS HAVE BEEN COPIED WILL BE NEEDED TO CHANGE
 
