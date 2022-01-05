@@ -45,8 +45,8 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
     return model, optimizer, loss_fn
 
 
-def load_model(model, model_path):
-    model = model.load_state_dict(torch.load(model_path))
+def load_model(model_path):
+    model = 1  # todo: update
     return model
 
 
