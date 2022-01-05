@@ -1,3 +1,4 @@
+from os import times_result
 import sys
 import pt_networks
 import torch.optim as optim
@@ -7,15 +8,20 @@ import pt_networks.SegNet_Attnt_reformat
 import pt_networks.SegNet_Attnt
 import pt_networks.unet
 import pt_networks.unet_reduced_layers
+import pt_networks.ColorisationNet
 
 
-def get_model(model_type='unet',device='cpu'):
+def get_model(model_type,device='cuda'):
 
    
     if model_type == 'baseline':
         model = pt_networks.segnet.Segnet().to(device)
-        optimizer = optim.Adam(model.parameters(), lr=0.001)  # todo: update
-        loss_fn = losses.BaselineLoss(True, True, False)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        loss_fn = losses.BaselineLoss(True, True, True,False)
+    elif model_type == 'colour':
+        model = pt_networks.ColorisationNet.Segnet().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        loss_fn = losses.BaselineLoss(True, True, True, True)
     elif model_type == 'unet':
         model = pt_networks.unet.UNet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=0.00001)

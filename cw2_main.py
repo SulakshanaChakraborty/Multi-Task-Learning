@@ -4,7 +4,8 @@ import model_utils
 import train_model
 import test_model
 import torch
-
+import lab_loader
+import train_color
 
 def run_cw2(train=True, test=False, visualize=True):
     ###############################
@@ -14,7 +15,7 @@ def run_cw2(train=True, test=False, visualize=True):
     validation_path = 'data/val/'
     test_path = 'data/test/'
     batch_size = 5
-    device='cpu'
+    device='cuda'
  
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
@@ -25,19 +26,37 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'unet'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
-    model, optimizer, loss_criterion = model_utils.get_model()
+    model_type = 'baseline'  # 'baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn' or 'colour'
+
+    if model_type == 'baseline':
+
+         train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
+                                                                                 validation_path=validation_path,
+                                                                                 test_path=test_path,
+                                                                                 batch_size=batch_size,
+                                                                                 )
+
+
+    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type)
     # checkpoint = torch.load('./saved_attnt.pt',map_location='cpu')
     # model.load_state_dict(checkpoint)
+    # if train and model_type=="colour":
+    #     print("Training the model!")
+    #     # Train model
+    #     model = train_color.train_model(model_type=model_type, train_loader=train_loader,
+    #                                     validation_loader=validation_loader,
+    #                                     model=model, optimizer=optimizer, loss_criterion=loss_criterion,
+    #                                     epochs=30,
+    #                                     device=device,
+    #                                     )
     if train:
-        print("Training the model!")
-        # Train model
-        model = train_model.train_model(model_type=model_type, train_loader=train_loader,
+         model = train_model.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
                                         model=model, optimizer=optimizer, loss_criterion=loss_criterion,
                                         epochs=30,
                                         device=device,
                                         )
+
     else:
         # Load model
         model_path = 'model.pth'  # todo: update this as a parameter.

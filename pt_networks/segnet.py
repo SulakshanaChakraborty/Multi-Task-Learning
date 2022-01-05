@@ -1,9 +1,6 @@
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-
 
 
 class Segnet(nn.Module):
@@ -12,6 +9,7 @@ class Segnet(nn.Module):
 
         super().__init__()
 
+        # self.layer_10 = self.conv2d_layer(1,64) #CHANGE 3 to in channels
         self.layer_10 = self.conv2d_layer(3,64) #CHANGE 3 to in channels
         self.layer_11=self.conv2d_layer(64,64)
 
@@ -216,6 +214,34 @@ class AttentionBlock(nn.Module):
         x=self.attention_weights(x)
         x=x*self.features
         x=self.conv_layer(x)
+
+
+
+
+
+    
+
+
+
+
+
+
+        
+
+
+
+   
+
+
+
+
+
+
+
+        
+
+
+
 
 
 

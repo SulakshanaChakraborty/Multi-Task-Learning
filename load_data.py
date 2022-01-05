@@ -1,8 +1,12 @@
 import h5py
 import torch
+from torch.utils import data
 from torch.utils.data import Dataset, DataLoader
 import torchvision.transforms as transforms
 import pathlib
+import matplotlib.pyplot as plt
+import cv2
+import numpy as np
 
 
 def create_data_loaders(train_path, validation_path, test_path, batch_size=16):
@@ -51,6 +55,30 @@ def take_random_samples(data_loader, n_samples):
     return images, labels, segmentations, bboxes
 
 
+def rgb2lab(img_path):
+
+    hf=h5py.File('Labimages.h5', 'w')
+    
+    imgs = h5py.File(img_path, 'r')
+
+    dataset_list = list(imgs.keys())[0]
+
+    numpy_array=np.array(imgs[dataset_list]).astype(np.uint8)
+
+
+    hf.create_dataset("Lab_img",
+                 shape=numpy_array.shape)
+               
+        
+    for idx,img in enumerate(numpy_array):
+
+        hf['Lab_img'][idx,...] = cv2.cvtColor(img,cv2.COLOR_RGB2LAB)
+
+
+    hf.close()
+
+
+
 class H5ImageLoader(Dataset):
     """
     Dataloader containing __len__ & __getitem__ as per
@@ -69,16 +97,21 @@ class H5ImageLoader(Dataset):
 
         transform(callable): Transform to be applied to the images ## ONLY TRAINING IMAGES, MASKS? ( I DONT THINK SO)
         """
+       
 
         self.img_h5 = h5py.File(img_file, 'r')
         self.mask_h5 = h5py.File(mask_file, 'r')
         self.bbox_h5 = h5py.File(bbox_file, 'r')
         self.classifcation_h5 = h5py.File(classification_file, 'r')
+        # if color:
+        #   self.lab = h5py.File(lab_files, 'r')
+        #   self.lab_list=list(self.lab.keys())[0]
 
         self.dataset_list = list(self.img_h5.keys())[0]
         self.mask_list = list(self.mask_h5.keys())[0]
         self.bbox_list = list(self.bbox_h5.keys())[0]
         self.classification_list = list(self.classifcation_h5.keys())[0]
+        
 
         self.transform = transform
 
@@ -86,10 +119,13 @@ class H5ImageLoader(Dataset):
         return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
 
     def __getitem__(self, idx):
+
         image = self.img_h5[self.dataset_list][idx]
         mask = self.mask_h5[self.mask_list][idx]
         bbox = self.bbox_h5[self.bbox_list][idx]
         classification = self.classifcation_h5[self.classification_list][idx]
+
+
       
         if self.transform:
         #    # mask_transform = transforms.Compose(
@@ -103,3 +139,17 @@ class H5ImageLoader(Dataset):
         
 
         return image, {'mask': mask, 'bbox': bbox, 'classification': classification}
+
+
+# if color:
+#     self.lab = h5py.File(lab_files, 'r')
+#     self.lab_list=list(self.lab.keys())[0]
+
+
+# lab_image_loader = H5ImageLoader(img_file=images_filepath, mask_file=masks_filepath, bbox_file=bboxes_filepath,
+#                                  classification_file=labels_filepath, transform=pt_transforms)
+# labloader = torch.DataLoader()
+
+if __name__ =="__main__":
+
+    rgb2lab('data/test/images.h5')
