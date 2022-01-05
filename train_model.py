@@ -129,7 +129,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
                 # Add opencv filter data
                 opencv_filter = labels['canny'].to(device)
-                opencv_filter = opencv_filter.to(torch.long)
+                opencv_filter = opencv_filter.to(torch.long).unsqueeze(dim=1)
 
                 # Model Inference
                 classes, boxes, segmask, opencv_pred = model(inputs)
