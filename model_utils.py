@@ -36,10 +36,9 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
 
     elif model_type == 'opencv_filter':
         model = pt_networks.segnet_opencv_filters.SegnetOpencv().to(device)
-        vgg16 = models.vgg16(pretrained=True).to(device)
-        model.vgg16_init(vgg16)
         if load_pre_trained_weights:
-            model.load_state_dict(torch.load('Segnet3task3layer.pt'))
+            vgg16 = models.vgg16(pretrained=True).to(device)
+            model.vgg16_init(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_filters=True)
