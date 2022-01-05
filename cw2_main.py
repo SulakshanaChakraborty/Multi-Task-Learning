@@ -27,7 +27,7 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     model_type = 'mlt_attention'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-    model_path = 'model.pth'  # todo: update this as a parameter.
+    model_path = 'Segnet3taskPretrainedVGGweightedloss0.7.pt'  # todo: update this as a parameter.
     if train:
         print("Training the model!")
         # Train model
@@ -45,9 +45,11 @@ def run_cw2(train=True, test=False, visualize=True):
     # Test Model
     ###############################
     if test:
+        model = model_utils.load_model(model=model, model_path=model_path)
+        # model = model.load_state_dict(torch.load(''))
         # Evaluate over testing dataset.
         print("Evaluating the model!")
-        test_model.evaluate_model_on_data(data_loader=test_loader, model=model)
+        test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device, loss_criterion=loss_criterion)
 
     ###############################
     # Run visualization
@@ -61,4 +63,4 @@ def run_cw2(train=True, test=False, visualize=True):
 
 
 if __name__ == '__main__':
-    run_cw2()
+    run_cw2(train=False,test=True, visualize=True)
