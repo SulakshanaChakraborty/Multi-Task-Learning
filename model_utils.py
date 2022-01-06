@@ -4,8 +4,7 @@ import pt_networks
 import torch.optim as optim
 import losses
 import pt_networks.segnet
-import pt_networks.SegNet_Attnt
-import pt_networks.SegNet_Attnt_reformat
+import pt_networks.SegNet_Attention_Filters
 import pt_networks.segnet_opencv_filters
 import torchvision.models as models
 
@@ -39,6 +38,14 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         if load_pre_trained_weights:
             vgg16 = models.vgg16(pretrained=True).to(device)
             model.vgg16_init(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
+                                          flag_filters=True)
+    elif model_type == 'attention_opencv_filter':
+        model = pt_networks.SegNet_Attention_Filters.SegNetFilters().to(device)
+        if load_pre_trained_weights:
+            vgg16 = models.vgg16(pretrained=True).to(device)
+            model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_filters=True)

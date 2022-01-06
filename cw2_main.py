@@ -13,7 +13,7 @@ def run_cw2(train=True, test=False, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 5
+    batch_size = 8
     device = 'cpu'
 
     opencv_filters = True
@@ -28,7 +28,7 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'opencv_filter'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn' or 'opencv_filter'
+    model_type = 'attention_opencv_filter'  # baseline' or 'mlt_attention' or 'opencv_filter' or 'attention_opencv_filter'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
     model_path = 'model.pth'  # todo: update this as a parameter.
     if train:
