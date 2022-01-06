@@ -18,13 +18,13 @@ def create_data_loaders(train_path, validation_path, test_path, batch_size=16, n
     # Validation data
     validation_transform = train_transform
     validation_loader = build_data_loader(data_path=validation_path, pt_transforms=validation_transform,
-                                          batch_size=batch_size, noisy=True)
+                                          batch_size=batch_size, noisy=noisy)
     # Test data
     test_transform = transforms.Compose(
         [transforms.ToTensor(),
          transforms.Normalize((127.5, 127.5, 127.5), (127.5, 127.5, 127.5)),
          ])
-    test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size, noisy=True)
+    test_loader = build_data_loader(data_path=test_path, pt_transforms=test_transform, batch_size=batch_size, noisy=noisy)
 
     return train_loader, validation_loader, test_loader
 

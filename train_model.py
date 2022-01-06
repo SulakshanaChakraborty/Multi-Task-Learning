@@ -160,7 +160,10 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             binary = torch.squeeze(labels['classification'].to(device))
             binary = binary.to(torch.long)
             bbox = labels['bbox'].to(device)
-            bbox=bbox.float()            
+            bbox=bbox.float() 
+            try:
+                denoised_target = labels['denoised'].to(device)
+            except: denoised_target = None           
 
             classes, boxes, segmask,denoised_pred = model(inputs)
             loss,labels_loss,segmentation_loss,bboxes_loss,denoise_loss= loss_criterion(input_labels=classes, input_segmentations=segmask, \

@@ -26,7 +26,7 @@ def get_model(model_type,device='cpu'):
         loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=False)
 
     elif model_type == 'mlt_attention':
-        model = pt_networks.SegNet_Attnt_reformat.SegNet(noisy=True).to(device)
+        model = pt_networks.SegNet_Attnt_reformat.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-3)

@@ -10,11 +10,11 @@ def add_noise(data_path, std_high=20, mean_high=10):
         key = list(images.keys())[0]
         img = images[key]     
 
-        std_arr = np.random.uniform(low = 0,high =std_high,size = (img.shape[0],1,1,1))
-        mean_arr = np.random.uniform(low = 0,high =mean_high,size = (img.shape[0],1,1,1))
+        #std_arr = np.random.uniform(low = 0,high =std_high,size = (img.shape[0],1,1,1))
+        # mean_arr = np.random.uniform(low = 0,high =mean_high,size = (img.shape[0],1,1,1))
 
         noise_normal = np.random.normal(size = img.shape)
-        noise_random_normal = noise_normal*std_arr + mean_arr
+        noise_random_normal = noise_normal*2 + 5   #*std_arr + mean_arr
         noisy_img = img + noise_random_normal
         images_noisy_filepath = pathlib.Path(data_path + '/noisy_data.h5')
         noisy_img_clipped = np.clip(noisy_img, 0, 255) 

@@ -15,7 +15,7 @@ def run_cw2(train=True, test=False, visualize=True):
     validation_path = 'data/val/'
     test_path = 'data/test/'
     batch_size = 5
-    device='cuda'
+    device='cpu'
 
     
  
