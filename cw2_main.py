@@ -7,6 +7,8 @@ import torch
 import lab_loader
 import train_color
 
+
+
 def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Load data

@@ -26,6 +26,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
     for epoch in range(epochs):
 
+
         time_epoch = time.time()
         train_loss = []
         train_accuracy = []
@@ -55,10 +56,11 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
             optimizer.zero_grad()
             classes, boxes, segmask = model(inputs)
+        
 
         
-            loss,labels_loss,segmentation_loss,bboxes_loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
-                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
+            loss,labels_loss,segmentation_loss,bboxes_loss,ab=loss_criterion(input_labels=classes, input_segmentations=segmask, \
+                input_bboxes=boxes, input_img=0,target_img=0,target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
 
             # print("loss",loss.dtype)
@@ -94,10 +96,11 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             bbox=bbox.float()            
             classes, boxes, segmask = model(inputs)
 
-            loss,labels_loss,segmentation_loss,bboxes_loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
-                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
+            loss,labels_loss,segmentation_loss,bboxes_loss,ab=loss_criterion(input_labels=classes, input_segmentations=segmask, \
+                input_bboxes=boxes,input_img=0,target_img=0, target_labels=binary, target_segmentations=mask,
                 target_bboxes=bbox)
         
+    
 
             pred_ax=np.argmax(classes.detach().cpu().numpy(),axis=1)
             val_accuracy.append(np.sum((binary.detach().cpu().numpy()==pred_ax).astype(int))/len(binary))    
