@@ -29,7 +29,7 @@ def get_model(model_type,device='cpu'):
         model = pt_networks.SegNet_Attnt_reformat.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-3)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
         loss_fn = losses.BaselineLoss(True, True, True,flag_denoise=True)  # todo: update
     elif model_type == 'mlt_hard':
 
