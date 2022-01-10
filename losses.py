@@ -55,7 +55,7 @@ class BaselineLoss(nn.Module):
         #    loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         #    loss = torch.stack([labels_loss, segmentations_loss])
 
-        loss = 0.1*labels_loss + 0.6*segmentations_loss + 0.1*0.0001 * bboxes_loss + 0.1*denoise_loss
+        loss = 1*labels_loss + 20*segmentations_loss + 2*0.00007 * bboxes_loss + 1*denoise_loss
         # print(loss,"total loss")
         return loss, labels_loss, segmentations_loss, bboxes_loss,denoise_loss
 
