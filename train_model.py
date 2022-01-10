@@ -9,8 +9,8 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='SegnetAttention3taskPretrainedVGGPooled/'
-date='tuning_learning_rate_1e-03'
+log_name='Denoising-attention/'
+date='attempt_1'
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device,soft_adapt = False):
@@ -251,5 +251,5 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
      #    best_val_accuracy=round(np.mean(val_accuracy),3)
-        torch.save(model.state_dict(), 'Segnet3taskPretrainedFixedmetric20020007.pt')
+        torch.save(model.state_dict(), 'Denoising-attention.pt')
       
