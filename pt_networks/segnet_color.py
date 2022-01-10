@@ -12,7 +12,7 @@ class Segnet(nn.Module):
 
         super().__init__()
 
-        self.layer_10 = self.conv2d_layer(3,64) #CHANGE 3 to in channels
+        self.layer_10 = self.conv2d_layer(1,64) #CHANGE 3 to in channels
         self.layer_11=self.conv2d_layer(64,64)
 
         self.layer_20=self.conv2d_layer(64,128)
@@ -50,37 +50,19 @@ class Segnet(nn.Module):
 
     
         self.layer_11_t=self.conv2d_layer(64,64)
-        self.layer_10_t=self.conv2d_layer(64,2) 
+        self.layer_10_t=self.conv2d_layer(64,2)
+
+        self.color_1=self.conv2d_layer(64,64)
+        self.color_2=self.conv2d_layer(64,2)
+
 
         self.upsample = nn.MaxUnpool2d(2, stride=2) 
-        
-
-        #classifier_conv = nn.Conv2d(512, self.num_classes, kernel_size=1)
-        # self.linear_c_0=nn.Linear(512*8*8,64)       
-        # self.linear_c_1=nn.Linear(64,2)
-
-        self.pool=nn.AvgPool2d(kernel_size=8)   
-        self.linear_c=nn.Linear(512,2)
-
-        # self.pool=nn.AvgPool2d(kernel_size=8)
-        # self.linear_b=nn.Linear(512,4)
-
-
+        self.linear_c_0=nn.Linear(512*8*8,64)
+        self.linear_c_1=nn.Linear(64,2)
 
         self.linear_b_0=nn.Linear(512*8*8,64)
         self.linear_b_1=nn.Linear(64,4)
-
         self.flat=nn.Flatten()
-
-
-    def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
-
-        layer=[]
-        layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
-        layer.append(nn.BatchNorm2d(out_ch))
-        layer.append(nn.ReLU(inplace=True))
-
-        return nn.Sequential(*layer)
 
     def vgg16_init(self, vgg16):
         
@@ -107,10 +89,26 @@ class Segnet(nn.Module):
       
         assert len(vgg_layers) == len(SegnetEnc)
 
+        i=0
         for layer1, layer2 in zip(vgg_layers, SegnetEnc):
 
-            layer2.weight.data = layer1.weight.data
-            layer2.bias.data = layer1.bias.data
+            if i!=0: #Skipping first layer
+             
+             layer2.weight.data = layer1.weight.data
+             layer2.bias.data = layer1.bias.data
+
+    
+            i+=1
+
+
+    def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
+
+        layer=[]
+        layer.append(nn.BatchNorm2d(in_ch))
+        layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
+        layer.append(nn.ReLU(inplace=True))
+
+        return nn.Sequential(*layer)
 
     def forward(self,x):
 
@@ -138,7 +136,7 @@ class Segnet(nn.Module):
         x,i3=self.downsample(x)
         x3=x.size()
 
-       # print(x.shape)
+        #print(x.shape)
 
         x=self.layer_40(x)
         x=self.layer_41(x)
@@ -146,10 +144,7 @@ class Segnet(nn.Module):
         x,i4=self.downsample(x)
         x4=x.size()
 
-       # print(x.shape)
-
-        
-
+        #print(x.shape)
 
         x=self.layer_50(x)
         x=self.layer_51(x)
@@ -158,65 +153,58 @@ class Segnet(nn.Module):
         x5=x.size()
 
         flat=self.flat(x)
-        
-        # c_0=(F.relu(self.linear_c_0(flat)))
-        # c_= self.linear_c_1(c_0)
-        b_0=(F.relu(self.linear_b_0(flat)))
+       # print(flat.size(),"flatsize")
+
+        c_0=F.relu(self.linear_c_0(flat))
+        c_= (self.linear_c_1(c_0))
+        b_0=F.relu(self.linear_b_0(flat))
         b_=F.relu(self.linear_b_1(b_0))
 
-        c_0=self.pool(x)
-        flat_c=self.flat(c_0)
-        c_=self.linear_c(flat_c)
-
-        # b_0=self.pool(x)
-        # flat_b=self.flat(b_0)
-        # b_=self.linear_b(flat_b)
-
-
-
-    
-
-       #print(x.shape)
+       # print(x.shape)
 
         x=self.upsample(x,i5,output_size=x4)
         x=self.layer_52_t(x)
         x=self.layer_51_t(x)
         x=self.layer_50_t(x)
    
-    #     #print(x.shape)
+        #print(x.shape)
 
         x=self.upsample(x,i4,output_size=x3)
         x=self.layer_42_t(x)
         x=self.layer_41_t(x)
         x=self.layer_40_t(x)
 
-    # #    # print(x.shape)
+       # print(x.shape)
 
         x=self.upsample(x,i3,output_size=x2)
         x=self.layer_32_t(x)
         x=self.layer_31_t(x)
         x=self.layer_30_t(x)
 
-    # #     #print(x.shape)
+        #print(x.shape)
 
         x=self.upsample(x,i2,output_size=x1)
         x=self.layer_21_t(x)
         x=self.layer_20_t(x)
-        
+        #print(x.shape)
 
-
-    # #     #print(x.shape)
-
+    
         
         x=self.upsample(x,i1)
+
+        color_1=self.color_1(x)
+        color_2=self.color_2(color_1)
+
         x=self.layer_11_t(x)
         x=self.layer_10_t(x)
-
         
-        
-    #     #print(x.shape)
+        #print(x.shape)
 
-        return c_,b_,x
+        return c_,b_,x,color_2
+
+
+
+
 
 
 
