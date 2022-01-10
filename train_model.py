@@ -9,14 +9,14 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='Segnet3taskPretrainedFixedmetricAblationClass/'
+log_name='Segnet3TaskNopretraining/'
 #date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
 date='200102bbox0.00007'
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device,soft_adapt = False):
-    
-    best_val_accuracy=0
+
+
     best_val_iou=0
 
     k=4
@@ -104,6 +104,10 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             optimizer.zero_grad()
             classes, boxes, segmask = model(inputs)
 
+            loss,labels_loss,segmentation_loss,bboxes_loss=loss_criterion(input_labels=classes, input_segmentations=segmask, \
+                input_bboxes=boxes, target_labels=binary, target_segmentations=mask,
+                target_bboxes=bbox)
+
            # print(train_accuracy[i-1],"minibatch acc")
 
             train_loss.append(loss.item())
@@ -114,7 +118,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             # Binary classification metrics.
             pred_class = np.argmax(classes.detach().cpu().numpy(), axis=1)
             train_accuracy.append(np.sum((binary.detach().cpu().numpy() == pred_class).astype(int)) / len(binary))
-            print(f'Minibatch Acc: {train_accuracy[i - 1]}')
+       #     print(f'Minibatch Acc: {train_accuracy[i - 1]}')
 
             # Segmentation metrics.
             target_segmentation = torch.argmax(segmask, 1)
@@ -240,9 +244,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         writer.add_scalar('val-Epoch-JAC', round(np.mean(val_jaca), 3), epoch)
         writer.add_scalar('va,-Epoch-f1', round(np.mean(val_f1_arr), 3), epoch)
 
-        # if round(np.mean(val_iou),3) > best_val_iou: #and round(np.mean(val_accuracy),3) > best_val_accuracy:
+       # if round(np.mean(val_iou),3) > best_val_iou: #and round(np.mean(val_accuracy),3) > best_val_accuracy:
 
-        #  best_val_iou=round(np.mean(val_iou),3)
-     #    best_val_accuracy=round(np.mean(val_accuracy),3)
-        torch.save(model.state_dict(), 'Segnet3taskPretrainedFixedmetricAblationClass.pt')
+        best_val_iou=round(np.mean(val_iou),3)
+        torch.save(model.state_dict(), 'Segnet3task.pt')
       

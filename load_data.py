@@ -83,9 +83,9 @@ class H5ImageLoader(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
+      return self.img_h5[list(self.img_h5.keys())[0]].shape[0]
 
-    # return 40
+        #return 10
 
     def __getitem__(self, idx):
         image = self.img_h5[self.dataset_list][idx]

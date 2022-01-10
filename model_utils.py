@@ -15,12 +15,12 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
     if model_type == 'baseline':
    
         model = pt_networks.segnet.Segnet().to(device)
-        vgg16 = models.vgg16(pretrained=True).to(device)
-        model.vgg16_init(vgg16)
+        #vgg16 = models.vgg16(pretrained=True).to(device)
+        #model.vgg16_init(vgg16)
         if load_pre_trained_weights:
             model.load_state_dict(torch.load('Segnet3task3layer.pt'))
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.BaselineLoss(True, True,False)
+        loss_fn = losses.BaselineLoss(False, True,False)
        
     elif model_type == 'baseline_unet':
         model = pt_networks.unet.UNet().to(device)
@@ -31,7 +31,7 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         model = pt_networks.SegNet_Attnt_reformat.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-3)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
         loss_fn = losses.BaselineLoss(True, True, True)  # todo: update
 
     elif model_type == 'mlt_hard':
@@ -45,8 +45,9 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
     return model, optimizer, loss_fn
 
 
-def load_model(model_path):
-    model = 1  # todo: update
+def load_model(model,model_path):
+
+    model.load_state_dict(torch.load(model_path))
     return model
 
 
