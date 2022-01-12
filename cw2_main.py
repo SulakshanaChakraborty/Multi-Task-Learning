@@ -6,6 +6,9 @@ import torch
 import displaying
 import lab_loader
 import train_color
+import train_denoising
+import denoising_loader
+
 
 def run_cw2(train=True, test=False, visualize=True):
     ###############################
@@ -26,7 +29,7 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'baseline'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'
+    model_type = 'denoising_attention'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'denoising_attention'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
 
    
@@ -43,6 +46,23 @@ def run_cw2(train=True, test=False, visualize=True):
     if train and  model_type== 'color_segnet':
      print("Training the model!")
      model = train_color.train_model(model_type=model_type, train_loader=train_loader,
+                                        validation_loader=validation_loader,
+                                        model=model, optimizer=optimizer, loss_criterion=loss_criterion,
+                                        epochs=30,
+                                        device=device
+                                        )
+      
+    if model_type == 'denoising_attention':
+      train_loader, validation_loader, test_loader = denoising_loader.create_data_loaders(train_path=train_path,
+                                                                              validation_path=validation_path,
+                                                                              test_path=test_path,
+                                                                              batch_size=batch_size,noisy=True
+                                                                              )
+
+    
+    if train and  model_type== 'denoising_attention':
+      print("Training the model!")
+      model = train_denoising.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
                                         model=model, optimizer=optimizer, loss_criterion=loss_criterion,
                                         epochs=30,
@@ -67,6 +87,7 @@ def run_cw2(train=True, test=False, visualize=True):
     model_path_canny=[]
     model_path_list_seg=[]
     model_path_list_color=['MTL-ColourNet-Pretrained.pt','MTL-ColourNet.pt']
+    model_path_list_denoising =['MLT-denoising-attention.pt']
     if test:
         if model_path_canny:
          for model_path in model_path_canny:
@@ -114,9 +135,23 @@ def run_cw2(train=True, test=False, visualize=True):
                                 
           model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
           model = model_utils.load_model(model=model,model_path=model_path)
+
+        if model_path_list_denoising:
+         for model_path in model_path_list_denoising:
+          model_type = 'denoising_attention'  
+          train_loader, validation_loader, test_loader = denoising_loader.create_data_loaders(train_path=train_path,
+                                                                                 validation_path=validation_path,
+                                                                                 test_path=test_path,
+                                                                                 batch_size=batch_size,noisy = True
+                                                                                 )
+          model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+          model = model_utils.load_model(model=model,model_path=model_path)
+
+
+
         # Evaluate over testing dataset.
           print("Evaluating the model!")
-          test_model.evaluate_color_on_data(test_loader=test_loader, model=model, device=device, loss_criterion=loss_criterion,model_name=model_path)
+          test_model.evaluate_denoising(test_loader=test_loader, model=model, device=device, loss_criterion=loss_criterion,model_name=model_path)
 
     ###############################
     # Run visualization
