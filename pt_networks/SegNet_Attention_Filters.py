@@ -202,7 +202,7 @@ class SegNetFilters(nn.Module):
         target_seg_pred = self.target_seg(attnt_decoder_arr[0][-1][-1])
         aux_pred_filter = self.filter_learning(attnt_decoder_arr[1][-1][-1])
 
-        aux_pred_c = self.linear_class(self.flat(attnt_encoder_arr[1][-1][-1]))
+        aux_pred_c = self.linear_class(self.flat(attnt_encoder_arr[3][-1][-1]))
         aux_pred_bb = self.linear_bb(self.flat(attnt_encoder_arr[2][-1][-1]))
 
         return aux_pred_c, aux_pred_bb, target_seg_pred, aux_pred_filter
