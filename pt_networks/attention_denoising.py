@@ -252,7 +252,7 @@ class SegNet(nn.Module):
 
 #         return x
 
-segnet = SegNet()
-total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
+# segnet = SegNet()
+# total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
 #print(segnet) 
 #print("Total number of parameters: ",total_param)
