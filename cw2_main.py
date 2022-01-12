@@ -8,17 +8,23 @@ import lab_loader
 import train_color
 import train_denoising
 import denoising_loader
+import argparse
 
-
-def run_cw2(train=True, test=False, visualize=True):
+def run_cw2(args ,train=True, test=False, visualize=True):
     ###############################
     # Load data
     ###############################
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 3
-    device='cuda'
+    batch_size = args.batch_size
+    device=args.device
+    model_type = args.model_type 
+
+    print("--------------------------------------------------------------------------------")
+    print(f"Model chosen: {model_type} , device: {device}, mini-batch size: {batch_size}")
+    print(f"Mode chose: Train- {train}, Test- {test}, Visualize- {visualize}")
+    print("--------------------------------------------------------------------------------")
  
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                  validation_path=validation_path,
@@ -29,7 +35,7 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'baseline'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'denoising_attention'
+     # baseline' or 'mlt_hard' or 'mlt_attention' or 'denoising_attention'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
 
    
@@ -157,12 +163,23 @@ def run_cw2(train=True, test=False, visualize=True):
     # Run visualization
     ###############################
     if visualize:
+        print(" Visualizing data!")
         images, labels, segmentations, bboxes = load_data.take_random_samples(data_loader=test_loader, n_samples=16)
         displaying.visualise_results(model=model, images=images, labels=labels, segmentation=segmentations,
                                      bboxes=bboxes)
 
     print('CW2 is done! Well, almost done.')
 
+def process_args():
+  ap = argparse.ArgumentParser(description="COMP0090 cw 2 script")
+  ap.add_argument("-m",'--model_type',help='type of model to build (baseline/mlt_hard/mlt_attention/denoising_attention/color_segnet)',default='baseline')
+  ap.add_argument("-d",'--device',help = 'which device to run on (cuda/gpu)',default = 'cuda')
+  ap.add_argument("-b",'--batch_size',help='mini-batch size',default= 5)
+  ap.add_argument("-tr",'--train',help='train the model (True/False)',default = False)
+  ap.add_argument("-ts",'--test',help = 'test the model (True/False)',default = True)
+  ap.add_argument("-v",'--visualize',help = 'visualise the dataset (True/False)',default = False)
+  return ap.parse_args()
 
 if __name__ == '__main__':
-    run_cw2(train=False,test=True,visualize=False)
+  args = process_args()
+  run_cw2(args, train=args.train,test=args.test,visualize=args.visualize )
