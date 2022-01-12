@@ -9,8 +9,8 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name = 'SegnetAttention3taskPretrainedVGGPooled/'
-date = 'tuning_learning_rate_1e-03'
+log_name = 'SegnetAttentionOpenCVFilter/'
+date = 'updates_in_attention_network'
 writer = SummaryWriter('logs/{}{}'.format(log_name, date))
 
 

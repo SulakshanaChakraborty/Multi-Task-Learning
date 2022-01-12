@@ -13,8 +13,8 @@ def run_cw2(train=True, test=False, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 8
-    device = 'cpu'
+    batch_size = 4
+    device = 'cuda'
 
     opencv_filters = True
 
