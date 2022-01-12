@@ -9,6 +9,7 @@ import pt_networks.SegNet_Attnt_reformat
 import torchvision.models as models
 import pt_networks.SegNet_Attention_Filters
 import pt_networks.segnet_color
+import pt_networks.Segnet_attnt_denoising
 
 
 
@@ -36,6 +37,13 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         model.vgg16_init(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
         loss_fn = losses.ColorLoss(True, True,True,True)
+
+    elif model_type == 'denoising_attention':
+        model = pt_networks.Segnet_attnt_denoising.SegNet().to(device)
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg_pretrained(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        loss_fn = losses.DenoisingLoss(True, True,True,True)
        
     elif model_type == 'opencv_filter':
         model = pt_networks.segnet_opencv_filters.SegnetOpencv().to(device)
@@ -70,7 +78,7 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
 
 def load_model(model,model_path):
 
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path,map_location=torch.device(device)))
     return model
 
 
