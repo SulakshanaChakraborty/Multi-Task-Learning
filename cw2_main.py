@@ -49,7 +49,7 @@ def run_cw2(args ,train=True, test=False, visualize=True):
                                                                                  )
 
     
-    if train and  model_type== 'color_segnet':
+    if train and  model_type== 'color_segnet' or model_type=='color_attention':
      print("Training the model!")
      model = train_color.train_model(model_type=model_type, train_loader=train_loader,
                                         validation_loader=validation_loader,
@@ -89,10 +89,11 @@ def run_cw2(args ,train=True, test=False, visualize=True):
     ###############################
     # Test Model
     ###############################
-    model_path_list_attention=[]
+    model_path_list_attention=['Attention_no_classification.pt']
     model_path_canny=[]
     model_path_list_seg=[]
     model_path_list_color=[]
+    model_path_list_color_attention=['MTL-ColourNet_attetion.pt']
     model_path_list_denoising =[]
     if test:
         if model_path_canny:
@@ -141,7 +142,20 @@ def run_cw2(args ,train=True, test=False, visualize=True):
                                 
           model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
           model = model_utils.load_model(model=model,model_path=model_path)
-
+          test_model.evaluate_color_on_data(test_loader=test_loader, model=model, device=device, loss_criterion=loss_criterion,model_name=model_path)
+        if model_path_list_color_attention:
+         for model_path in model_path_list_color_attention:
+          model_type = 'color_attention'  
+          train_loader, validation_loader, test_loader = lab_loader.create_data_loaders(train_path=train_path,
+                                                                                 validation_path=validation_path,
+                                                                                 test_path=test_path,
+                                                                                 batch_size=batch_size,
+                                                                                 )
+                                
+          model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+          model = model_utils.load_model(model=model,model_path=model_path)
+          test_model.evaluate_color_on_data(test_loader=test_loader, model=model, device=device, loss_criterion=loss_criterion,model_name=model_path)
+          
         if model_path_list_denoising:
          for model_path in model_path_list_denoising:
           model_type = 'denoising_attention'  
@@ -173,8 +187,8 @@ def run_cw2(args ,train=True, test=False, visualize=True):
 def process_args():
   ap = argparse.ArgumentParser(description="COMP0090 cw 2 script")
   ap.add_argument("-m",'--model_type',help='type of model to build (baseline/mlt_hard/mlt_attention/denoising_attention/color_segnet)',default='baseline')
-  ap.add_argument("-d",'--device',help = 'which device to run on (cuda/gpu)',default = 'cuda')
-  ap.add_argument("-b",'--batch_size',help='mini-batch size',default= 5)
+  ap.add_argument("-d",'--device',help = 'which device to run on (cuda/cpu)',default = 'cuda')
+  ap.add_argument("-b",'--batch_size',help='mini-batch size',default= 5,type=int)
   ap.add_argument("-tr",'--train',help='train the model (True/False)',default = False)
   ap.add_argument("-ts",'--test',help = 'test the model (True/False)',default = True)
   ap.add_argument("-v",'--visualize',help = 'visualise the dataset (True/False)',default = False)

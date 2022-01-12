@@ -10,6 +10,7 @@ import torchvision.models as models
 import pt_networks.SegNet_Attention_Filters
 import pt_networks.segnet_color
 import pt_networks.Segnet_attnt_denoising
+import pt_networks.SegNet_Attnt_reformat_color
 
 
 
@@ -38,6 +39,13 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
         loss_fn = losses.ColorLoss(True, True,True,True)
 
+    elif model_type == 'color_attention':
+        model = pt_networks.SegNet_Attnt_reformat_color.SegNet().to(device)
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg_pretrained(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        loss_fn = losses.ColorLoss(True, True,True,True)
+
     elif model_type == 'denoising_attention':
         model = pt_networks.Segnet_attnt_denoising.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
@@ -53,30 +61,23 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_filters=True)
-    elif model_type == 'baseline_unet':
-        model = pt_networks.unet.UNet().to(device)
-        optimizer = optim.Adam(model.parameters(), lr=0.00001)
-        loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=False)
+  
 
     elif model_type == 'mlt_attention':
         model = pt_networks.SegNet_Attnt_reformat.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-4)
-        loss_fn = losses.BaselineLoss(True, True, True)  # todo: update
+        loss_fn = losses.BaselineLoss(False, True, True)  # todo: update
 
-    elif model_type == 'mlt_hard':
-        model, optimizer, loss_fn = 1, 2, 3  # todo: update
 
-    elif model_type == 'mlt_gscnn':
-        model, optimizer, loss_fn = pt_networks.GSCNN(), 2, 3  # todo: update
     else:
         sys.exit(f'Model Type: {model_type} is not implemented.')
 
     return model, optimizer, loss_fn
 
 
-def load_model(model,model_path):
+def load_model(model,model_path,device='cuda'):
 
     model.load_state_dict(torch.load(model_path,map_location=torch.device(device)))
     return model
