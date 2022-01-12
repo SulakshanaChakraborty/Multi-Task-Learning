@@ -29,7 +29,8 @@ def run_cw2(train=True, test=False, visualize=True):
     # Train Model
     ###############################
     model_type = 'attention_opencv_filter'  # baseline' or 'mlt_attention' or 'opencv_filter' or 'attention_opencv_filter'
-    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device,
+                                                             load_pre_trained_weights=True)
     model_path = 'model.pth'  # todo: update this as a parameter.
     if train:
         print("Training the model!")

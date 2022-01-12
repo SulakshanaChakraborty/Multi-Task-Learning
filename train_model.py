@@ -226,7 +226,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         #    best_val_accuracy=round(np.mean(val_accuracy),3)
 
         # Save model checkpoint
-        torch.save(model.state_dict(), 'Segnet3taskPretrainedFixedmetric20020007.pt')
+        torch.save(model.state_dict(), 'Canny_Attention_NOPretrained_30Epochs.pt')
 
 # def soft_adapt(epoch, train_segmentation_loss, train_bbox_loss, train_label_loss, beta=-0.01, normalized=True):
 #     idx = epoch
