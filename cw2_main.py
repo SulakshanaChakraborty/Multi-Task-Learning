@@ -17,7 +17,7 @@ def run_cw2(train=True, test=False, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = 5
+    batch_size = 3
     device='cuda'
  
     train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
@@ -29,7 +29,7 @@ def run_cw2(train=True, test=False, visualize=True):
     ###############################
     # Train Model
     ###############################
-    model_type = 'denoising_attention'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'denoising_attention'
+    model_type = 'baseline'  # baseline' or 'mlt_hard' or 'mlt_attention' or 'denoising_attention'
     model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
 
    
@@ -86,8 +86,8 @@ def run_cw2(train=True, test=False, visualize=True):
     model_path_list_attention=[]
     model_path_canny=[]
     model_path_list_seg=[]
-    model_path_list_color=['MTL-ColourNet-Pretrained.pt','MTL-ColourNet.pt']
-    model_path_list_denoising =['MLT-denoising-attention.pt']
+    model_path_list_color=[]
+    model_path_list_denoising =[]
     if test:
         if model_path_canny:
          for model_path in model_path_canny:
