@@ -17,7 +17,7 @@ def run_cw2(args ,train=True, test=False, visualize=True):
     train_path = 'data/train/'
     validation_path = 'data/val/'
     test_path = 'data/test/'
-    batch_size = args.batch_size
+    batch_size = int(args.batch_size)
     device=args.device
     model_type = args.model_type 
 
@@ -183,17 +183,23 @@ def run_cw2(args ,train=True, test=False, visualize=True):
                                      bboxes=bboxes)
 
     print('CW2 is done! Well, almost done.')
-
+    
 def process_args():
   ap = argparse.ArgumentParser(description="COMP0090 cw 2 script")
   ap.add_argument("-m",'--model_type',help='type of model to build (baseline/mlt_hard/mlt_attention/denoising_attention/color_segnet)',default='baseline')
-  ap.add_argument("-d",'--device',help = 'which device to run on (cuda/cpu)',default = 'cuda')
-  ap.add_argument("-b",'--batch_size',help='mini-batch size',default= 5,type=int)
-  ap.add_argument("-tr",'--train',help='train the model (True/False)',default = False)
-  ap.add_argument("-ts",'--test',help = 'test the model (True/False)',default = True)
-  ap.add_argument("-v",'--visualize',help = 'visualise the dataset (True/False)',default = False)
+  ap.add_argument("-d",'--device',help = 'which device to run on (cuda/gpu)',default = 'cuda')
+  ap.add_argument("-b",'--batch_size',help='mini-batch size',default= 5)
+  ap.add_argument("-tr",'--train',help='train the model (y/n)',default = 'n')
+  ap.add_argument("-ts",'--test',help = 'test the model (y/n)',default = 'y')
+  ap.add_argument("-v",'--visualize',help = 'visualise the dataset (y/n)',default = 'n')
   return ap.parse_args()
 
 if __name__ == '__main__':
   args = process_args()
-  run_cw2(args, train=args.train,test=args.test,visualize=args.visualize )
+
+  train,test,visualize = (False,False,False)
+  if args.train == 'y': train = True
+  if args.test == 'y': test = True
+  if args.visualize == 'y':   visualize = True
+
+  run_cw2(args, train=train,test=test,visualize=visualize )
