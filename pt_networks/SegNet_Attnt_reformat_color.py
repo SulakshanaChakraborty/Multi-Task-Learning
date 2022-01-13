@@ -7,7 +7,7 @@ from collections.abc import Iterable
 class SegNet(nn.Module):
     def __init__(self):
         super().__init__()
-        channels_encoder = [3, 64, 128, 256, 512, 512] # 0th element: number of input chanels
+        channels_encoder = [1, 64, 128, 256, 512, 512] # 0th element: number of input chanels
         channels_decoder = [64,64,128,256,512,512] 
         # define first layer of encoder with 5 encoder blocks
         self.encoder = nn.ModuleList([nn.ModuleList([self.bn_conv_relu(channels_encoder[i], channels_encoder[i+1])]) for i in range(5)])
@@ -63,7 +63,7 @@ class SegNet(nn.Module):
         
         self.flat=nn.Flatten()
         # number of task 4
-        self.denoising = self.bn_conv_relu(64,3) # denoising task
+        self.colorization = self.bn_conv_relu(64,2) # denoising task
         self.linear_class= nn.Linear(512*8*8,2)  # binary classification task
         self.linear_bb= nn.Linear(512*8*8,4) # bounding box prediction task
         self.target_seg =  self.bn_conv_relu(64,2) # denoising task
@@ -88,11 +88,14 @@ class SegNet(nn.Module):
                     else:
                         if isinstance(laye, nn.Conv2d): 
                             encoder_layers.append(laye)
-
+        i=0
         for layer1, layer2 in zip(vgg_layers, encoder_layers):
 
-            layer2.weight.data = layer1.weight.data
-            layer2.bias.data = layer1.bias.data
+            if i !=0:
+
+             layer2.weight.data = layer1.weight.data
+             layer2.bias.data = layer1.bias.data
+            i+=1
             
     def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
 
@@ -177,12 +180,12 @@ class SegNet(nn.Module):
 
         # final tasks
         target_seg_pred = self.target_seg(attnt_decoder_arr[0][-1][-1])
-        aux_pred_denoising = self.denoising(attnt_decoder_arr[1][-1][-1])
+        aux_pred_colorization = self.colorization(attnt_decoder_arr[1][-1][-1])
 
-        aux_pred_c = self.linear_class(self.flat(attnt_encoder_arr[2][-1][-1]))
-        aux_pred_bb = self.linear_bb(self.flat(attnt_encoder_arr[3][-1][-1]))
+        aux_pred_c = self.linear_class(self.flat(attnt_encoder_arr[3][-1][-1]))
+        aux_pred_bb = self.linear_bb(self.flat(attnt_encoder_arr[2][-1][-1]))
 
-        return aux_pred_c,aux_pred_bb, target_seg_pred,aux_pred_denoising
+        return aux_pred_c,aux_pred_bb, target_seg_pred,aux_pred_colorization
         
 
 # class Decoder(nn.Module):
@@ -252,7 +255,7 @@ class SegNet(nn.Module):
 
 #         return x
 
-# segnet = SegNet()
-# total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
+segnet = SegNet()
+total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
 #print(segnet) 
 #print("Total number of parameters: ",total_param)
