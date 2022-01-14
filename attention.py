@@ -16,6 +16,8 @@ opt = parser.parse_args()
 
 
 class SegNet(nn.Module):
+    """Class for the attention model network
+    """
     def __init__(self):
         super(SegNet, self).__init__()
         # initialise network parameters
@@ -88,6 +90,18 @@ class SegNet(nn.Module):
                 nn.init.constant_(m.bias, 0)
 
     def conv_layer(self, channel, pred=False):
+         """Function used to create the convolution block from convolutions,
+        batch normalisation and relu activations.
+    
+
+        Args:
+            channel ([int]): Number of input channels.
+            pred (bool, optional): Defaults to False.
+
+        Returns:
+            conv_block: 1 convolution block structure made up of smaller
+            layers
+        """
         if not pred:
             conv_block = nn.Sequential(
                 nn.Conv2d(in_channels=channel[0], out_channels=channel[1], kernel_size=3, padding=1),
@@ -102,6 +116,15 @@ class SegNet(nn.Module):
         return conv_block
 
     def att_layer(self, channel):
+        """Function used to create an attention block entity.
+
+        Args:
+            channel ([int]): Number of channels inputted into one attention block.
+
+        Returns:
+            att_block: 1 Attention block consisting of 2 convolutions, 2 batch normalisations, a relu layer 
+            and one sigmoid activation layer.
+        """
         att_block = nn.Sequential(
             nn.Conv2d(in_channels=channel[0], out_channels=channel[1], kernel_size=1, padding=0),
             nn.BatchNorm2d(channel[1]),
