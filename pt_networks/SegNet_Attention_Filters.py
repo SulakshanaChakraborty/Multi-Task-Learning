@@ -137,6 +137,10 @@ class SegNetFilters(nn.Module):
         return nn.Sequential(*layer)
 
     def attnt_layer(self, channel):
+        """A function used to create an attention block from individual layers including convolutions, batch normalisation, relu and sigmoid.
+        Returns:
+            attnt_block (pytorch object): A structure made up of smaller individual layers.
+        """
         attnt_block = nn.Sequential(
             nn.Conv2d(in_channels=channel[0], out_channels=channel[1], kernel_size=1, padding=0),
             nn.BatchNorm2d(channel[1]),
