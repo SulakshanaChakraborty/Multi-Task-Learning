@@ -11,6 +11,7 @@ from torch.nn.modules.utils import _pair
 
 
 class GatedSpatialConv2d(_ConvNd):
+    """Class for the gated spatial convolution model."""
     def __init__(self, in_channels, out_channels, kernel_size=1, stride=1,
                  padding=0, dilation=1, groups=1, bias=False):
         """
@@ -54,6 +55,7 @@ class GatedSpatialConv2d(_ConvNd):
                         self.padding, self.dilation, self.groups)
 
     def reset_parameters(self):
+        """A function used to reset the parameters of the model."""
         nn.init.xavier_normal_(self.weight)
         if self.bias is not None:
             nn.init.zeros_(self.bias)
