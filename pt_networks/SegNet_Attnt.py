@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 class SegNet(nn.Module):
+    """Segnet model with attention"""
     def __init__(self):
         super().__init__()
         filter = [64, 128, 256, 512, 512]
