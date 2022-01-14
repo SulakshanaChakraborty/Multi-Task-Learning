@@ -6,7 +6,7 @@ from collections.abc import Iterable
 
 
 class SegNetFilters(nn.Module):
-    """Class for the canny filter model"""
+    """Class for the canny filter model with attention"""
     def __init__(self, n_blocks_encoder=5, n_blocks_decoder=5, n_tasks=4):
         super().__init__()
 
