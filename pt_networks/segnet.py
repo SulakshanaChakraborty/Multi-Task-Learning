@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 
 class Segnet(nn.Module):
-
+    """A function for the segnet network."""
     def __init__(self):
 
         super().__init__()
@@ -74,6 +74,16 @@ class Segnet(nn.Module):
 
 
     def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
+        """A function creating a layer consisting of convolution, batch normalisation and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+        
+        Returns:
+            A layer made up of three smaller layers.
+        
+        """
 
         layer=[]
         layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
@@ -83,6 +93,7 @@ class Segnet(nn.Module):
         return nn.Sequential(*layer)
 
     def vgg16_init(self, vgg16):
+        """A function for initialisation of the vgg16 model."""
         
         original_layers=  [self.layer_10,self.layer_11,self.layer_20,self.layer_21
                            ,self.layer_30,self.layer_31,self.layer_32
