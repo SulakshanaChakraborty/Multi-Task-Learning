@@ -91,6 +91,10 @@ class SegNetFilters(nn.Module):
 
     # clean the code?
     def vgg_pretrained(self, vgg16):
+        """A function for vgg weights of the pretrained model.
+        
+        Args: model.
+        """
         layers = list(vgg16.features.children())  # Getting all features of vgg
         vgg_layers = []
         for layer in layers:
@@ -114,7 +118,16 @@ class SegNetFilters(nn.Module):
             layer2.bias.data = layer1.bias.data
 
     def bn_conv_relu(self, in_ch, out_ch, kernel_size=3, padding=1, stride=1):
-
+        """A function creating an attention block consisting of convolution, batch normalisation and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+        
+        Returns:
+            attnt_block (pytorch object): An attention block made up of three smaller layers.
+        
+        """
         layer = []
         layer.append(
             nn.Conv2d(in_channels=in_ch, out_channels=out_ch, kernel_size=kernel_size, padding=padding, stride=stride))
