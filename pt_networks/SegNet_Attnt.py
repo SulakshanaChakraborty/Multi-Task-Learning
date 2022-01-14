@@ -135,7 +135,7 @@ class SegNet(nn.Module):
         
 
 class Decoder(nn.Module):
-
+    """A class for the decoder of the segnet network."""
     def __init__(self):
 
         super().__init__()
