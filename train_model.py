@@ -15,7 +15,19 @@ date='200102bbox0.00007'
 writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device,soft_adapt = False):
+    """A function used for the training routine of the selected model using the selected model type, trainloader,
+    validation loader, optimizer, loss criterion.
 
+    Args:
+        model_type (string): The model type.
+        train_loader (pytorch object): pytorch data loader for the training set.
+        validation_loader (pytorch object): pytorch data loader for the validation set.
+        model (pytorch object): network for the model_type.
+        optimizer (pytorch object): a pytorch optimizer (Adam).
+        loss_criterion (pytorch object): a loss function for the respective model type.
+        epochs (int): the number of epochs/iteration used for training.
+        device (string): the device used for training of the model (cpu or cuda).
+    """
 
     best_val_iou=0
 
