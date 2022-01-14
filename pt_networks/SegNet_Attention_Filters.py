@@ -93,7 +93,8 @@ class SegNetFilters(nn.Module):
     def vgg_pretrained(self, vgg16):
         """A function for vgg weights of the pretrained model.
         
-        Args: model.
+        Args:
+        vgg16: model.
         """
         layers = list(vgg16.features.children())  # Getting all features of vgg
         vgg_layers = []
