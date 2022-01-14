@@ -16,6 +16,21 @@ import pt_networks.SegNet_canny
 
 
 def get_model(model_type, device='cpu', load_pre_trained_weights=False):
+    """A function used to initialise and define the model that will be used for training. 
+    Depending on the selected model an appropriate loss function is assigned to the model type used.
+    Adam optimiser is utilised for each of the models. 
+
+    Args:
+        model_type (str): Name of the model defined in the cw2_main.py.
+        device (str, optional): The device that should be used to train the chosen model. Defaults to 'cpu'.
+        load_pre_trained_weights (bool, optional): Boolean input which determines whether pre-trained weights 
+        should be loaded with the model. Defaults to False.
+
+    Returns:
+        model: The network after initialisation.
+        optimizer: The pytorch optimiser (Adam).
+        loss_fn: The loss function for the respective model/network.
+    """
     if model_type == 'baseline':
 
         model = pt_networks.segnet.Segnet().to(device)
