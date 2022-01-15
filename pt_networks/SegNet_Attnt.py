@@ -90,7 +90,7 @@ class SegNet(nn.Module):
 
         return nn.Sequential(*layer)
 
-    def att_layer(self, channel):
+    def attnt_layer(self, channel):
         """A function used to create an attention block from individual layers including convolutions, batch normalisation, relu and sigmoid.
         Returns:
             attnt_block (pytorch object): A structure made up of smaller individual layers.
