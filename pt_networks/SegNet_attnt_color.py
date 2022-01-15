@@ -5,6 +5,8 @@ import numpy as np
 from collections.abc import Iterable
 
 class SegNet(nn.Module):
+    """Segnet model with attention and colorisation.
+    """
     def __init__(self):
         super().__init__()
         channels_encoder = [1, 64, 128, 256, 512, 512] # 0th element: number of input chanels
@@ -71,6 +73,11 @@ class SegNet(nn.Module):
     
     # clean the code? 
     def vgg_pretrained(self,vgg16):
+        """A function for vgg weights of the pretrained model.
+        
+        Args:
+        vgg16: model.
+        """
         layers = list(vgg16.features.children()) #Getting all features of vgg 
         vgg_layers = []
         for layer in layers:
@@ -98,7 +105,16 @@ class SegNet(nn.Module):
             i+=1
             
     def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
-
+        """A function creating an attention block consisting of convolution, batch normalisation and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+        
+        Returns:
+            attnt_block (pytorch object): An attention block made up of three smaller layers.
+        
+        """
         layer=[]
         layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
         layer.append(nn.BatchNorm2d(out_ch))
@@ -107,6 +123,10 @@ class SegNet(nn.Module):
         return nn.Sequential(*layer)
 
     def attnt_layer(self, channel):
+        """A function used to create an attention block from individual layers including convolutions, batch normalisation, relu and sigmoid.
+        Returns:
+            attnt_block (pytorch object): A structure made up of smaller individual layers.
+        """
         attnt_block = nn.Sequential(
             nn.Conv2d(in_channels=channel[0], out_channels=channel[1], kernel_size=1, padding=0),
             nn.BatchNorm2d(channel[1]),
