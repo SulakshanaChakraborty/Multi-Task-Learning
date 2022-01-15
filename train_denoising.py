@@ -2,9 +2,7 @@ import sys
 import torch
 import numpy as np
 import time
-from metrics import eval_metrics, jaccard_index
 from sklearn.metrics import jaccard_score,f1_score
-import pt_networks.segnet
 import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
@@ -137,8 +135,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
             train_bbox_loss.append(bboxes_loss.data.item())
             target_segmentation = torch.argmax(segmask, 1)
-            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-            train_iou.append(iou.item())
+            
+            
             train_denoise_loss.append(denoise_loss.data.item())
             #print(train_iou[i-1],"iou")
             #print(train_denoise_loss[i-1],"denoising loss")
@@ -146,7 +144,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
             mask_array=np.array(mask.cpu()).ravel()
             predicted_array=np.array(target_segmentation.cpu()).ravel()
-
+            iou=np.mean(jaccard_score(mask_array, predicted_array, average=None))
+            train_iou.append(iou)
             #print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac segmentation')
             # print(jaccard_score(denoise_pred_array,denoised_target_array,average='weighted'),'denoising segmentation')
             #print(f1_score(mask_array,predicted_array),"skf1")
@@ -200,8 +199,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
             val_mask_array=np.array(mask.cpu()).ravel()
             val_predicted_array=np.array(target_segmentation.cpu()).ravel()
 
-            iou=(eval_metrics(mask.cpu(),target_segmentation.cpu(),2))
-            print(round(iou.item(),3),"iou")
+            iou=np.mean(jaccard_score(mask_array, predicted_array, average=None))
+            #print(round(iou.item(),3),"iou")
             #print()
 
             val_jac=jaccard_score(val_mask_array,val_predicted_array,average='weighted')
@@ -209,7 +208,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
             val_jaca.append(val_jac)
             val_f1_arr.append(val_f1)
-            val_iou.append(iou.item())
+            val_iou.append(iou)
             val_bbox_loss.append(bboxes_loss.data.item())  
             
 

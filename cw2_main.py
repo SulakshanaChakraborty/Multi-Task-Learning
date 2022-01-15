@@ -159,22 +159,14 @@ def run_cw2(args, train=True, test=False): #  visualize=True):
             test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device,
                                                 loss_criterion=loss_criterion, model_name=model_path)
 
-    # ###############################
-    # # Run visualization
-    # ###############################
-    # if visualize:
-    #     print(" Visualizing data!")
-    #     images, labels, segmentations, bboxes = load_data.take_random_samples(data_loader=test_loader, n_samples=16)
-    #     displaying.visualise_results(model=model, images=images, labels=labels, segmentation=segmentations,
-    #                                  bboxes=bboxes)
+  
 
     print('Completed!')
 
 
 def process_args():
     """A function used to customise the running of the script.
-      Various options are available such as the model type, device, batch size, mode of running (ie: training or testing) and 
-      visualisation.
+      Various options are available such as the model type, device, batch size, mode of running (ie: training or testing).
 
 
       Returns:
