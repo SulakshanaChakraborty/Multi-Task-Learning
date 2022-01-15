@@ -1,52 +1,75 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
+from collections.abc import Iterable
 
 class SegNet(nn.Module):
     def __init__(self):
         super().__init__()
-        filter = [64, 128, 256, 512, 512]
+        channels = [3, 64, 128, 256, 512, 512] # 0th element: number of input chanels
 
-        # define encoder decoder layers
-        self.encoder_block = nn.ModuleList([self.conv2d_layer(3, filter[0])])
+        # define encoder with 5 encoder blocks
+        self.encoder = nn.ModuleList([nn.ModuleList([self.bn_conv_relu(channels[i], channels[i+1])]) for i in range(5)])
+        for i in range(5):
+            if i <2:
+             self.encoder[i].append(self.bn_conv_relu(channels[i + 1], channels[i + 1]))
+            else:
+                self.encoder[i].append(nn.Sequential(self.bn_conv_relu(channels[i + 1], channels[i + 1]),
+                                                         self.bn_conv_relu(channels[i + 1], channels[i + 1])))
+
         self.down_sampling = nn.MaxPool2d(kernel_size=2, stride=2, return_indices=True)
 
-        for i in range(4):
-            self.encoder_block.append(self.conv2d_layer(filter[i], filter[i + 1]))  
-
-        # define convolution layer
-        self.conv_block_enc = nn.ModuleList([self.conv2d_layer(filter[0], filter[0])])
-        for i in range(4):
-            if i == 0:
-                self.conv_block_enc.append(self.conv2d_layer(filter[i + 1], filter[i + 1]))
-            else:
-                self.conv_block_enc.append(nn.Sequential(self.conv2d_layer(filter[i + 1], filter[i + 1]),
-                                                         self.conv2d_layer(filter[i + 1], filter[i + 1])))
-
-        # define task attention layers
-        self.encoder_att = nn.ModuleList([nn.ModuleList([self.att_layer([filter[0], filter[0], filter[0]])])])
-        self.encoder_block_att = nn.ModuleList([self.conv2d_layer(filter[0], filter[1])])
-
-        for j in range(3):
-            if j < 2:
-                self.encoder_att.append(nn.ModuleList([self.att_layer([filter[0], filter[0], filter[0]])]))
-            for i in range(4):
-                self.encoder_att[j].append(self.att_layer([2 * filter[i + 1], filter[i + 1], filter[i + 1]]))
-
-        for i in range(4):
-            if i < 3:
-                self.encoder_block_att.append(self.conv2d_layer(filter[i + 1], filter[i + 2]))
-            else:
-                self.encoder_block_att.append(self.conv2d_layer(filter[i + 1], filter[i + 1]))
-
-        linear_class_layers = [nn.Linear(512*8*8,64),nn.ReLU(inplace=True),nn.Linear(64,2)]
-        self.linear_class=nn.Sequential(*linear_class_layers)
-        linear_bb_layers = [nn.Linear(512*8*8,64),nn.ReLU(inplace=True), nn.Linear(64,4)]
-        self.linear_bb=nn.Sequential(*linear_bb_layers)
-        self.decoder = Decoder()
+        # define attention for each task 
+        # initialize first layer
+        self.attention = nn.ModuleList([ nn.ModuleList([self.attnt_layer([channels[1], channels[1], channels[1]])]) for _ in range(3)])
+        for i in range(3): #no of tasks
+            for j in range(1,5): 
+                self.attention[i].append(self.attnt_layer([2 * channels[j+1], channels[j+1], channels[j+1]]))
+        
+        #define shared attention features (f)
+        self.attnt_shared = nn.ModuleList([self.bn_conv_relu(channels[i], channels[i+1]) for i in range(1,5)])
+        self.attnt_shared.append(self.bn_conv_relu(channels[-1], channels[-1]))
+        
         self.flat=nn.Flatten()
+        #print(self.attention)
+        self.linear_class=nn.Linear(512*8*8,2)  # binary classification task
+        self.linear_bb= nn.Linear(512*8*8,4) # bounding box prediction task
+        self.decoder = Decoder() # animal segmentaion task
     
-    def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
+    def vgg_pretrained(self,vgg16):
+        layers = list(vgg16.features.children()) #Getting all features of vgg 
+        vgg_layers = []
+        for layer in layers:
+            if isinstance(layer, nn.Conv2d):
+                vgg_layers.append(layer)
+
+        encoder_layers = []
+        for layers in self.encoder:
+            for l in layers:
+                for laye in l:
+                    if isinstance(laye,Iterable):
+                        for h in laye:
+                            if isinstance(h, nn.Conv2d):
+                                encoder_layers.append(h)
+                    else:
+                        if isinstance(laye, nn.Conv2d): 
+                            encoder_layers.append(laye)
+
+        # print("encoder_layers len",len(encoder_layers))
+        # print("vgg_layers len",len(vgg_layers))
+
+        for layer1, layer2 in zip(vgg_layers, encoder_layers):
+            # print("############")
+            # print("layer_vgg:",layer1)
+            # print("layer_encoder:",layer2)
+            # print("############")
+            
+
+            layer2.weight.data = layer1.weight.data
+            layer2.bias.data = layer1.bias.data
+            
+    def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
 
         layer=[]
         layer.append(nn.BatchNorm2d(in_ch))
@@ -55,8 +78,8 @@ class SegNet(nn.Module):
 
         return nn.Sequential(*layer)
 
-    def att_layer(self, channel):
-        att_block = nn.Sequential(
+    def attnt_layer(self, channel):
+        attnt_block = nn.Sequential(
             nn.Conv2d(in_channels=channel[0], out_channels=channel[1], kernel_size=1, padding=0),
             nn.BatchNorm2d(channel[1]),
             nn.ReLU(inplace=True),
@@ -64,56 +87,44 @@ class SegNet(nn.Module):
             nn.BatchNorm2d(channel[2]),
             nn.Sigmoid(),
         )
-        return att_block
+        return attnt_block
 
     def forward(self,x):
-        g_encoder, g_maxpool,indices,x_shapes = ([0] * 5 for _ in range(4))
-        for i in range(5):
-            g_encoder[i] = [0] * 2 
 
+        # define arrays for saving intermediate values 
+        #during foward pass
+        encoder_arr = np.empty((5,2),dtype=object) # store (u) & (p) from shared network
+        maxpool_arr,indices_arr,x_shapes_arr = (np.empty((5),dtype=object) for _ in range(3))
       
-        # define attention list for tasks
-        atten_encoder, atten_decoder = ([0] * 3 for _ in range(2))  
-        for i in range(3):
-            atten_encoder[i], atten_decoder[i] = ([0] * 5 for _ in range(2))
-        for i in range(3):
-            for j in range(5):
-                atten_encoder[i][j], atten_decoder[i][j] = ([0] * 3 for _ in range(2))
+        # durring attention
+        attnt_arr = np.empty((3,5,3),dtype=object) # 3 tasks, 5 blocks, 3 input feature channels
         
-        # define global shared network
+        # foward pass through global shared network
         for i in range(5):
             if i == 0:
-                g_encoder[i][0] = self.encoder_block[i](x)
-                g_encoder[i][1] = self.conv_block_enc[i](g_encoder[i][0])
-                
-                g_maxpool[i], indices[i] = self.down_sampling(g_encoder[i][1])
-                x_shapes[i] = g_maxpool[i].size()
+                encoder_arr[i][0] = self.encoder[i][0](x)
             else:
-                g_encoder[i][0] = self.encoder_block[i](g_maxpool[i - 1])
-                g_encoder[i][1] = self.conv_block_enc[i](g_encoder[i][0])             
-                g_maxpool[i], indices[i] = self.down_sampling(g_encoder[i][1])
-                x_shapes[i] = g_maxpool[i].size()
+                encoder_arr[i][0] = self.encoder[i][0](maxpool_arr[i - 1])
 
+            encoder_arr[i][1] = self.encoder[i][1](encoder_arr[i][0])             
+            maxpool_arr[i], indices_arr[i] = self.down_sampling(encoder_arr[i][1])
+            x_shapes_arr[i] = maxpool_arr[i].size() # storing indices and shape for upsamling 
+
+        # foward pass through attention masks
         for i in range(3):
             for j in range(5):
                 if j == 0:
-                    atten_encoder[i][j][0] = self.encoder_att[i][j](g_encoder[j][0])
-                    atten_encoder[i][j][1] = (atten_encoder[i][j][0]) * g_encoder[j][1]
-                    atten_encoder[i][j][2] = self.encoder_block_att[j](atten_encoder[i][j][1])
-                    atten_encoder[i][j][2] = F.max_pool2d(atten_encoder[i][j][2], kernel_size=2, stride=2)
-                else:
-                    atten_encoder[i][j][0] = self.encoder_att[i][j](torch.cat((g_encoder[j][0], atten_encoder[i][j - 1][2]), dim=1))
-                    atten_encoder[i][j][1] = (atten_encoder[i][j][0]) * g_encoder[j][1]
-                    atten_encoder[i][j][2] = self.encoder_block_att[j](atten_encoder[i][j][1])
-                    atten_encoder[i][j][2] = F.max_pool2d(atten_encoder[i][j][2], kernel_size=2, stride=2)
+                    attnt_arr[i][j][0] = self.attention[i][j](encoder_arr[j][0])
+                else: # concatenate shared and task specific features from prev layer (g)
+                    attnt_arr[i][j][0] = self.attention[i][j](torch.cat((encoder_arr[j][0], attnt_arr[i][j - 1][2]), dim=1))
+                    
+                attnt_arr[i][j][1] = (attnt_arr[i][j][0]) * encoder_arr[j][1]
+                attnt_arr[i][j][2] = self.attnt_shared[j](attnt_arr[i][j][1])
+                attnt_arr[i][j][2] = F.max_pool2d(attnt_arr[i][j][2], kernel_size=2, stride=2)
         
-        x = atten_encoder[0][-1][-1].shape   
-        y = atten_encoder[1][-1][-1].shape   
-        z = atten_encoder[2][-1][-1].shape     
-
-        target_pred = self.decoder(atten_encoder[0][-1][-1],indices,x_shapes)
-        flat_c = self.flat(atten_encoder[1][-1][-1])
-        flat_bb = self.flat(atten_encoder[2][-1][-1])
+        target_pred = self.decoder(attnt_arr[0][-1][-1],indices_arr,x_shapes_arr)
+        flat_c = self.flat(attnt_arr[1][-1][-1])
+        flat_bb = self.flat(attnt_arr[2][-1][-1])
         aux_pred_c = self.linear_class(flat_c)
         aux_pred_bb = self.linear_bb(flat_bb)
 
@@ -125,30 +136,30 @@ class Decoder(nn.Module):
     def __init__(self):
 
         super().__init__()
-        self.layer_52_t=self.conv2d_layer(512,512)
-        self.layer_51_t=self.conv2d_layer(512,512)
-        self.layer_50_t=self.conv2d_layer(512,512)
+        self.layer_52_t=self.bn_conv_relu(512,512)
+        self.layer_51_t=self.bn_conv_relu(512,512)
+        self.layer_50_t=self.bn_conv_relu(512,512)
 
         
-        self.layer_42_t=self.conv2d_layer(512,512)
-        self.layer_41_t=self.conv2d_layer(512,512)
-        self.layer_40_t=self.conv2d_layer(512,256)
+        self.layer_42_t=self.bn_conv_relu(512,512)
+        self.layer_41_t=self.bn_conv_relu(512,512)
+        self.layer_40_t=self.bn_conv_relu(512,256)
 
-        self.layer_32_t=self.conv2d_layer(256,256)
-        self.layer_31_t=self.conv2d_layer(256,256)
-        self.layer_30_t=self.conv2d_layer(256,128)
+        self.layer_32_t=self.bn_conv_relu(256,256)
+        self.layer_31_t=self.bn_conv_relu(256,256)
+        self.layer_30_t=self.bn_conv_relu(256,128)
 
-        self.layer_21_t=self.conv2d_layer(128,128)
-        self.layer_20_t=self.conv2d_layer(128,64)
+        self.layer_21_t=self.bn_conv_relu(128,128)
+        self.layer_20_t=self.bn_conv_relu(128,64)
 
     
-        self.layer_11_t=self.conv2d_layer(64,64)
-        self.layer_10_t=self.conv2d_layer(64,2) 
+        self.layer_11_t=self.bn_conv_relu(64,64)
+        self.layer_10_t=self.bn_conv_relu(64,2) 
 
         self.upsample = nn.MaxUnpool2d(2, stride=2)
 
 
-    def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
+    def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
 
         layer=[]
         layer.append(nn.BatchNorm2d(in_ch))
@@ -161,189 +172,36 @@ class Decoder(nn.Module):
         i1,i2,i3,i4,i5 = indices
         x1,x2,x3,x4,x5 = x_shapes
                     
-        #print(x.shape)
-
-       
-    #     x=self.layer_10(x)
-    #     x=self.layer_11(x)
-    #     x,i1=self.downsample(x)
-    #     x1=x.size()
-        
-    #     #print(x.shape)
-
-    #     x=self.layer_20(x)
-    #     x=self.layer_21(x)
-    #     x,i2=self.downsample(x)
-    #     x2=x.size()
-
-    #     #print(x.shape)
-
-    #     x=self.layer_30(x)
-    #     x=self.layer_31(x)
-    #     x=self.layer_32(x)
-    #     x,i3=self.downsample(x)
-    #     x3=x.size()
-
-    #     #print(x.shape)
-
-    #     x=self.layer_40(x)
-    #     x=self.layer_41(x)
-    #     x=self.layer_42(x)
-    #     x,i4=self.downsample(x)
-    #     x4=x.size()
-
-    #     #print(x.shape)
-
-    #     x=self.layer_50(x)
-    #     x=self.layer_51(x)
-    #     x=self.layer_52(x)
-    #     x,i5=self.downsample(x)
-    #     x5=x.size()
-
-    #     flat=self.flat(x)
-    #    # print(flat.size(),"flatsize")
-
-    #     c_0=F.relu(self.linear_c_0(flat))
-    #     c_= (self.linear_c_1(c_0))
-    #     b_0=F.relu(self.linear_b_0(flat))
-    #     b_=F.relu(self.linear_b_1(b_0))
-
-    #    # print(x.shape)
-
         x=self.upsample(x,i5,output_size=x4)
         x=self.layer_52_t(x)
         x=self.layer_51_t(x)
         x=self.layer_50_t(x)
-   
-        #print(x.shape)
+
 
         x=self.upsample(x,i4,output_size=x3)
         x=self.layer_42_t(x)
         x=self.layer_41_t(x)
         x=self.layer_40_t(x)
 
-       # print(x.shape)
-
         x=self.upsample(x,i3,output_size=x2)
         x=self.layer_32_t(x)
         x=self.layer_31_t(x)
         x=self.layer_30_t(x)
 
-        #print(x.shape)
-
         x=self.upsample(x,i2,output_size=x1)
         x=self.layer_21_t(x)
         x=self.layer_20_t(x)
-
-
-        #print(x.shape)
-
         
         x=self.upsample(x,i1)
         x=self.layer_11_t(x)
         x=self.layer_10_t(x)
-        
-        #print(x.shape)
 
         return x
 
 segnet = SegNet()
-
-# class Segnet(nn.Module):
-
-#     def __init__(self):
-
-#         super().__init__()
-
-#         self.encoder= Encoder()
-#         self.flat=nn.Flatten()
-#         self.linear_c_0=nn.Linear(128*256*256,64)
-#         self.linear_c_1=nn.Linear(64,2)
-
-#         self.linear_b_0=nn.Linear(128*256*256,64)
-#         self.linear_b_1=nn.Linear(64,4)
-#         self.decoder= Decoder()
-
- 
-
-
-#     def forward(self,x):
-
-#         enc=self.encoder(x)
-#         #print(enc.size(),"encsize")
-#         flat=self.flat(enc)
-#        # print(flat.size(),"flatsize")
-
-#         c_0=F.relu(self.linear_c_0(flat))
-#         c_= (self.linear_c_1(c_0))
-#         b_0=F.relu(self.linear_b_0(flat))
-#         b_=F.relu(self.linear_b_1(b_0))
-#         dec=self.decoder(enc)
-
-#         return c_,b_,dec
-
-# class AttentionBlock(nn.Module):
-
-#     def __init__(self,in_channel,inter_channel,out_channel,features,in_channel_3,out_channel_3):
-
-#         """
-#         @params:
-#         features: Shared features (From the 3rd or so conv) to be multiplied element-wise
-#         in_channel: Number of in_channels for 1st 1x1 conv
-#         inter_channel: Intermediate channels for 2nd 1x1 conv
-#         out_channels: Out channels for 2nd 1x1 conv
-        
-#         in_channel_3: In channels for 3x3 conv
-#         out_channel_3: Out channels for 3x3 conv
-
-
-        
-#         """
-
-#         super().__init__()
-
-#         self.attention_weights= self.attention(in_channel,inter_channel,out_channel)
-#         self.features=features
-#         self.conv2d_layer=self.conv2d_layer(in_channel_3,out_channel_3)
-
-#     def conv2d_layer(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
-
-#         layer=[]
-#         layer.append(nn.BatchNorm2d(in_ch))
-#         layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
-#         layer.append(nn.ReLU(inplace=True))
-#         return nn.Sequential(*layer)
-
-
-#     def attention_(self,in_channel,inter_channel,out_channel):
-
-#         layer=[]
-         
-#         layer.append(nn.Conv2d(in_channels=in_channel, out_channels=out_channel, kernel_size=1, padding=0))
-#         layer.append(nn.BatchNorm2d(inter_channel))
-#         layer.append(nn.ReLU(inplace=True))
-#         layer.append(nn.Conv2d(in_channels=in_channel, out_channels=inter_channel, kernel_size=1, padding=0))
-#         layer.append(nn.BatchNorm2d(out_channel))
-#         layer.append(nn.Sigmoid())
-        
-#         return nn.Sequential(*layer)
-
-#     def forward(self,x):
-
-#         x=self.attention_weights(x)
-#         x=x*self.features
-#         x=self.conv2d_layer(x)
-
-
-
-
-
-    
-
-
-
-
-
+# total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
+# print(segnet) 
+# print("Total number of parameters: ",total_param)
 
         
 

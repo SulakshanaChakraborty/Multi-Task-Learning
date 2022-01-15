@@ -179,8 +179,8 @@ class SegNet(nn.Module):
         target_seg_pred = self.target_seg(attnt_decoder_arr[0][-1][-1])
         aux_pred_denoising = self.denoising(attnt_decoder_arr[1][-1][-1])
 
-        aux_pred_c = self.linear_class(self.flat(attnt_encoder_arr[1][-1][-1]))
-        aux_pred_bb = self.linear_bb(self.flat(attnt_encoder_arr[2][-1][-1]))
+        aux_pred_c = self.linear_class(self.flat(attnt_encoder_arr[2][-1][-1]))
+        aux_pred_bb = self.linear_bb(self.flat(attnt_encoder_arr[3][-1][-1]))
 
         return aux_pred_c,aux_pred_bb, target_seg_pred,aux_pred_denoising
         
@@ -251,3 +251,8 @@ class SegNet(nn.Module):
 #         x=self.layer_10_t(x)
 
 #         return x
+
+# segnet = SegNet()
+# total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
+#print(segnet) 
+#print("Total number of parameters: ",total_param)
