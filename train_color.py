@@ -10,13 +10,11 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device):
-<<<<<<< HEAD
     
     model_name = 'Segnet-Colourisation-Pretrained'
     log_name=model_type
     date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
     writer = SummaryWriter('logs/{}{}'.format(log_name,date))
-=======
     """A function used for the training routine of the selected model using the selected model type, trainloader,
     validation loader, optimizer, loss criterion.
 
@@ -30,7 +28,6 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
         epochs (int): the number of epochs/iteration used for training.
         device (string): the device used for training of the model (cpu or cuda).
     """
->>>>>>> 5118d3ee43593c35a33b528e1dbe0f00f61b8e74
     best_val_accuracy=0
     best_val_iou=0
 
