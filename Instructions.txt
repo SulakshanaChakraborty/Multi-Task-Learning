@@ -6,11 +6,13 @@ have command line arguments during the running of the program in the terminal. T
 this document primarily focusses on the cw2_main.py file of the repository.
 
 Data Loading: 
+
 - The data required for training and testing is initially loaded, using the resepective file paths
 which should be kept constant in the cw2_main.py file as they are hard coded throughout the repository
 files (ie: 'data/train/' for training and 'data/test/' for testing data.
 
 Training:
+
 - To train the default model with the other arguments set to the defaults, a user has to type 
 'cw2_main.py -tr y' in the terminal. The default setting for the model is 'MTL-Attention' and this
 be changed by adding the '-m' statement followed by the desired model name. The device on which the
@@ -26,6 +28,7 @@ they can use '-d -h' which will display a help message 'which device would you l
 'cw2_main.py' file without having to modify it.
 
 Testing:
+
 - The default running mode setting for the cw2_main.py is testing as in the ArgumentParser the default
 argument for testing is set to 'y'. This means that to test the default 'MTL-Attention' model, the user
 simply has to run 'python cw2_main.py' in the command without the addition of any other arguments.
