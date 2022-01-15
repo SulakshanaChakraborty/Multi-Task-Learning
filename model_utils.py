@@ -61,9 +61,8 @@ def get_model(model_type, device='cpu'):
         loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = True,device=device)
 
 
-    elif model_type == 'MLT-Attention-with-colourization':
-        model = pt_networks.SegNet_attnt_color.SegNet.to(device)
-       
+    elif model_type == 'MTL-Attention-with-colorization':
+        model = pt_networks.SegNet_attnt_color.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
@@ -97,7 +96,7 @@ def get_model(model_type, device='cpu'):
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.OpencvFilterLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=True,device=device)
+        loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=True,device=device)
 
     elif model_type == 'MTL-segnet-with-canny':
         model = pt_networks.SegNet_canny.SegnetOpencv().to(device)
@@ -108,7 +107,7 @@ def get_model(model_type, device='cpu'):
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_filters=True,device=device)
                                           
-    elif model_type == 'MTL-segnet-with-colourization':
+    elif model_type == 'MTL-segnet-with-colorization':
         model = pt_networks.segnet_color.Segnet().to(device)
     
         vgg16 = models.vgg16(pretrained=True).to(device)
