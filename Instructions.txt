@@ -29,12 +29,22 @@ the name of the model added to the end after a space like so:
 eg: for the MTL attention model with colorization: 
 'python cw2_main.py -m MTL-Attention-with-colorization'
 
-- other examples for experimenting with other different models:
+Experiments 
+
+Examples for experimenting with other different models (for the testing mode with all default arguments):
+'python cw2_main.py -m Segnet-1task-untrained'
 'python cw2_main.py -m Segnet-1task'
 'python cw2_main.py -m MTL-Segnet-untrained'
 'python cw2_main.py -m MTL-Segnet'
 'python cw2_main.py -m MTL-Attention'
 'python cw2_main.py -m MTL-Attention-with-colorization'
+'python cw2_main.py -m MTL-Attention-with-denoising'
+'python cw2_main.py -m MTL-Attention-with-canny'
+'python cw2_main.py -m MTL-Attention-without-bbox'
+'python cw2_main.py -m MTL-Attention-without-classification'
+'python cw2_main.py -m MTL-segnet-with-canny'
+'python cw2_main.py -m MTL-segnet-with-colorization'
+
 
 Data Loading: 
 
@@ -61,8 +71,8 @@ they can use '-d -h' which will display a help message 'which device would you l
 
 Colorisation Scripts:
 
-- Additional colorisation scripts like ..... were added to ......  These must be ran before the running of cw2_main.py and training/
-testing of a model. lab_loader.py must be ran before training and testing to ensure that the 
+- An additional colorisation script lab_loader.py was added to convert the RGB colour space to the LAB colour
+space. This file must be ran before the running of cw2_main.py and training/testing of a model.  
 
 Testing:
 
@@ -72,8 +82,10 @@ simply has to run 'python cw2_main.py' in the command without the addition of an
 - To perform testing on different models, the '-m' statement should be used followed by the name of the
 chosen model. The process of changing the arguments for the testing mode follows the same methodology 
 as described in the Training section of this document. 
+ 
 
-Experiments: 
+
+
 
 
 
