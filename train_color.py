@@ -10,11 +10,27 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device):
+<<<<<<< HEAD
     
     model_name = 'Segnet-Colourisation-Pretrained'
     log_name=model_type
     date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
     writer = SummaryWriter('logs/{}{}'.format(log_name,date))
+=======
+    """A function used for the training routine of the selected model using the selected model type, trainloader,
+    validation loader, optimizer, loss criterion.
+
+    Args:
+        model_type (string): The model type.
+        train_loader (pytorch object): pytorch data loader for the training set.
+        validation_loader (pytorch object): pytorch data loader for the validation set.
+        model (pytorch object): network for the model_type.
+        optimizer (pytorch object): a pytorch optimizer (Adam).
+        loss_criterion (pytorch object): a loss function for the respective model type.
+        epochs (int): the number of epochs/iteration used for training.
+        device (string): the device used for training of the model (cpu or cuda).
+    """
+>>>>>>> 5118d3ee43593c35a33b528e1dbe0f00f61b8e74
     best_val_accuracy=0
     best_val_iou=0
 
@@ -172,4 +188,8 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
         #  best_val_accuracy=round(np.mean(val_accuracy),3)
+<<<<<<< HEAD
         torch.save(model.state_dict(), model_type+'.pt')
+=======
+        torch.save(model.state_dict(), 'MTL-ColourNet-Pretrained.pt')
+>>>>>>> 5118d3ee43593c35a33b528e1dbe0f00f61b8e74

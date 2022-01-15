@@ -11,6 +11,14 @@ import numpy as np
 
 
 def rgb2lab(img_path,destination_path):
+    """A function used to convert the rgb colour space images to the 
+    lab colour space, where l is the lightness channel, a is the red green-channel and 
+    b is the blue-yellow channel.
+
+    Args:
+        img_path (path): file path of the images to be converted.
+        destination_path (path): file of the where converted images should be transfered.
+    """
 
     hf=h5py.File(os.path.join(destination_path,'Labimages.h5'), 'w')
     
@@ -101,6 +109,19 @@ class H5LabImageLoader(Dataset):
         return L, {'mask': mask, 'bbox': bbox, 'classification': classification,'ab':ab}
 
 def create_data_loaders(train_path, validation_path, test_path, batch_size=16):
+    """A function for creating pytorch training, validation and testing dataloader objects.
+
+    Args:
+        train_path (path): The path for the training data.
+        validation_path (path): The path for the validation data.
+        test_path (path): The path for the testing data.
+        batch_size (int, optional): Size of the batch. Defaults to 16.
+        noisy (bool, optional): Boolean for addition of noise. Defaults to False.
+
+    Returns:
+        train_loader, val_loader, test_loader are the torch.DataLoader() objects for their respective datasets;
+        training, validation and testing sets.
+    """
     # Train data
     train_transform = transforms.Compose(
         [transforms.ToTensor(),
@@ -122,6 +143,18 @@ def create_data_loaders(train_path, validation_path, test_path, batch_size=16):
 
 
 def build_data_loader(data_path, pt_transforms, batch_size=16):
+    """A function used for creating a single data loader.
+
+    Args:
+        data_path (path): Path used to access the data.
+        pt_transforms (pytorch object): Pytorch transforms to be applied onto the dataset, contained
+        as a list inside a pytorch transforms object. 
+        batch_size (int, optional): Size of the batch. Defaults to 16.
+        noisy (bool, optional): Boolean for addition of noise. Defaults to False.
+
+    Returns:
+        data_loader (pytorch object): DataLoader object for a specific dataset.
+    """
     # Define paths
     images_filepath = pathlib.Path(data_path + '/Labimages.h5')
     masks_filepath = pathlib.Path(data_path + '/masks.h5')

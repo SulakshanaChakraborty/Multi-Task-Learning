@@ -3,6 +3,9 @@ import torch.nn as nn
 
 
 class BaselineLoss(nn.Module):
+    """Class for computation of the loss for the baseline network.
+
+    """
     def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_denoise=True):
         super(BaselineLoss, self).__init__()
         self.flag_labels = flag_labels
@@ -63,6 +66,8 @@ class BaselineLoss(nn.Module):
 
 
 class SoftAdaptLoss(nn.Module):
+    """Class for the calculation of loss to allow for updating weights epoch wise.
+    """
     def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True):
         super().__init__()
         self.flag_labels = flag_labels
@@ -139,6 +144,8 @@ class SoftAdaptLoss(nn.Module):
 
 
 class GeometricLoss(nn.Module):
+    """Class used for calculation of geometric loss.
+    """
     def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, device='cpu'):
         super(GeometricLoss, self).__init__()
         self.flag_labels = flag_labels

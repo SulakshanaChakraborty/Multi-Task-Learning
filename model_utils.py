@@ -3,11 +3,11 @@ import torch
 import torch.optim as optim
 import losses
 import pt_networks.segnet
-import pt_networks.SegNet_attnt
+import pt_networks.SegNet_Attnt
 import torchvision.models as models
 import pt_networks.SegNet_attnt_canny
 import pt_networks.SegNet_attnt_color
-import pt_networks.SegNet_attnt_denoising
+import pt_networks.Segnet_attnt_denoising
 import pt_networks.segnet_color
 import pt_networks.SegNet_attnt_canny
 import pt_networks.SegNet_canny
@@ -18,6 +18,21 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         model = pt_networks.segnet.Segnet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  
         loss_fn = losses.BaselineLoss(flag_labels = False, flag_segmentations= True, flag_bboxes = False)
+    """A function used to initialise and define the model that will be used for training. 
+    Depending on the selected model an appropriate loss function is assigned to the model type used.
+    Adam optimiser is utilised for each of the models. 
+
+    Args:
+        model_type (str): Name of the model defined in the cw2_main.py.
+        device (str, optional): The device that should be used to train the chosen model. Defaults to 'cpu'.
+        load_pre_trained_weights (bool, optional): Boolean input which determines whether pre-trained weights 
+        should be loaded with the model. Defaults to False.
+
+    Returns:
+        model: The network after initialisation.
+        optimizer: The pytorch optimiser (Adam).
+        loss_fn: The loss function for the respective model/network.
+    """
 
     if model_type == 'Segnet-1task':
         model = pt_networks.segnet.Segnet().to(device)
@@ -57,7 +72,7 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         loss_fn = losses.ColorLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_color=True)
     elif model_type == 'MTL-Attention-with-denoising':
-        model = pt_networks.SegNet_attnt_denoising.SegNet().to(device)
+        model = pt_networks.Segnet_attnt_denoising.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
@@ -72,14 +87,14 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_filters=True)
 
     elif model_type == 'MTL-Attention-without-bbox':
-        model = pt_networks.SegNet_attnt.SegNet().to(device)
+        model = pt_networks.SegNet_Attnt.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
         loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = False)
 
     elif model_type == 'MTL-Attention-without-classification':
-        model = pt_networks.SegNet_attnt.SegNet().to(device)
+        model = pt_networks.SegNet_Attnt.SegNet().to(device)
         if load_pre_trained_weights:
             vgg16 = models.vgg16(pretrained=True).to(device)
             model.vgg_pretrained(vgg16)

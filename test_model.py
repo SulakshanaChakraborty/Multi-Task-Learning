@@ -5,6 +5,15 @@ from metrics import eval_metrics
 
 
 def evaluate_model_on_data(test_loader, model, device, loss_criterion, model_name=""):
+    """A function for the testing the model on the specified testing data.
+
+    Args:
+        test_loader (pytorch object): pytorch data loader for the testing set.
+        model (pytorch object): pytorch model for the network.
+        device (string): the device used for training of the model (cpu or cuda).
+        loss_criterion (pytorch object): a loss function for the respective model type.
+        model_name (str, optional): Name assigned to the model. Defaults to "".
+    """
     # todo: implement test scheme.
     test_loss = []
     test_accuracy = []
@@ -70,6 +79,15 @@ def evaluate_model_on_data(test_loader, model, device, loss_criterion, model_nam
 
 
 def evaluate_color_on_data(test_loader, model, device, loss_criterion, model_name=""):
+    """A function for the testing colorisation on the specified testing data.
+
+    Args:
+        test_loader (pytorch object): pytorch data loader for the testing set.
+        model (pytorch object): pytorch model for the network.
+        device (string): the device used for training of the model (cpu or cuda).
+        loss_criterion (pytorch object): a loss function for the respective model type.
+        model_name (str, optional): Name assigned to the model. Defaults to "".
+    """
     # todo: implement test scheme.
     test_loss = []
     test_accuracy = []
@@ -142,6 +160,15 @@ def evaluate_color_on_data(test_loader, model, device, loss_criterion, model_nam
     file.close()
 
 def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""):
+    """A function for the testing denoising on the specified testing data.
+
+    Args:
+        test_loader (pytorch object): pytorch data loader for the testing set.
+        model (pytorch object): pytorch model for the network.
+        device (string): the device used for training of the model (cpu or cuda).
+        loss_criterion (pytorch object): a loss function for the respective model type.
+        model_name (str, optional): Name assigned to the model. Defaults to "".
+    """
     # todo: implement test scheme.
     test_loss = []
     test_accuracy = []
@@ -235,6 +262,15 @@ def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""
 
 
 def evaluate_opencv_filters(test_loader, model, device, loss_criterion, model_name=""):
+    """A function for the testing the canny filter on the specified testing data.
+
+    Args:
+        test_loader (pytorch object): pytorch data loader for the testing set.
+        model (pytorch object): pytorch model for the network.
+        device (string): the device used for training of the model (cpu or cuda).
+        loss_criterion (pytorch object): a loss function for the respective model type.
+        model_name (str, optional): Name assigned to the model. Defaults to "".
+    """
     test_loss = []
     test_accuracy = []
     test_iou = []

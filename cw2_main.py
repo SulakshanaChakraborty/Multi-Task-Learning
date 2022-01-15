@@ -12,6 +12,9 @@ import argparse
 
 
 def run_cw2(args, train=True, test=False): #  visualize=True):
+
+    """A function used to initiate the running of the training/testing of the model
+    """
     ###############################
     # Load data
     ###############################
@@ -168,6 +171,14 @@ def run_cw2(args, train=True, test=False): #  visualize=True):
 
 
 def process_args():
+    """A function used to customise the running of the script.
+      Various options are available such as the model type, device, batch size, mode of running (ie: training or testing) and 
+      visualisation.
+
+
+      Returns:
+          Interprets the arguments added to the argument parser object during the running of the script.
+    """
     ap = argparse.ArgumentParser(description="COMP0090 cw 2 script")
     ap.add_argument("-m", '--model_type',
                     help='type of model to build (model name)',

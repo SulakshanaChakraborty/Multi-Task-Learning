@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class SegnetOpencv(nn.Module):
-
+    """Class for the segnet network witht the canny filter."""
     def __init__(self):
         super().__init__()
 
@@ -60,6 +60,11 @@ class SegnetOpencv(nn.Module):
         self.flat = nn.Flatten()
 
     def vgg16_init(self, vgg16):
+        """A function for vgg weights of the pretrained model.
+        
+        Args:
+        vgg16: model.
+        """
 
         original_layers = [self.layer_10, self.layer_11, self.layer_20, self.layer_21
             , self.layer_30, self.layer_31, self.layer_32
@@ -88,6 +93,18 @@ class SegnetOpencv(nn.Module):
             layer2.bias.data = layer1.bias.data
 
     def conv2d_layer(self, in_ch, out_ch, kernel_size=3, padding=1, stride=1):
+        """A function creating a layer consisting of batch normalisation convolution and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            kernel_size (int): size of the kernel for the convolution. Default is 3.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+            Stride (int): Stride for the convolution layer. Default is 1.
+        
+        Returns:
+            A structure made up of three smaller layers.
+        
+        """
         layer = []
         layer.append(nn.BatchNorm2d(in_ch))
         layer.append(
@@ -212,6 +229,18 @@ class AttentionBlock(nn.Module):
         self.conv_layer = self.conv2d_layer(in_channel_3, out_channel_3)
 
     def conv2d_layer(self, in_ch, out_ch, kernel_size=3, padding=1, stride=1):
+        """A function creating a layer consisting of batch normalisation convolution and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            kernel_size (int): size of the kernel for the convolution. Default is 3.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+            Stride (int): Stride for the convolution layer. Default is 1.
+        
+        Returns:
+            A structure made up of three smaller layers.
+        
+        """
         layer = []
         layer.append(nn.BatchNorm2d(in_ch))
         layer.append(
@@ -220,6 +249,16 @@ class AttentionBlock(nn.Module):
         return nn.Sequential(*layer)
 
     def attention_(self, in_channel, inter_channel, out_channel):
+        """A function for the attention consisting of 2 convolutions, batch normalization, relu and sigmoid layers.
+        Args:
+            in_channel (int): Number of input channels.
+            inter_channel (int): Number of inter channels.
+            out_channel (int): Number of output channels.
+            
+        Returns:
+            A structure consisting of 6 individual smaller layers.
+            
+        """
         layer = []
 
         layer.append(nn.Conv2d(in_channels=in_channel, out_channels=out_channel, kernel_size=1, padding=0))

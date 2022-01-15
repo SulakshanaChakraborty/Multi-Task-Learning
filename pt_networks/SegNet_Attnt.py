@@ -5,6 +5,7 @@ import numpy as np
 from collections.abc import Iterable
 
 class SegNet(nn.Module):
+    """Segnet model with attention"""
     def __init__(self):
         super().__init__()
         channels = [3, 64, 128, 256, 512, 512] # 0th element: number of input chanels
@@ -69,8 +70,19 @@ class SegNet(nn.Module):
             layer2.weight.data = layer1.weight.data
             layer2.bias.data = layer1.bias.data
             
-    def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
+    
 
+    def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
+        """A function creating a layer consisting of convolution, batch normalisation and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+        
+        Returns:
+            A layer made up of three smaller layers.
+        
+        """
         layer=[]
         layer.append(nn.BatchNorm2d(in_ch))
         layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
@@ -78,7 +90,11 @@ class SegNet(nn.Module):
 
         return nn.Sequential(*layer)
 
-    def attnt_layer(self, channel):
+    def att_layer(self, channel):
+        """A function used to create an attention block from individual layers including convolutions, batch normalisation, relu and sigmoid.
+        Returns:
+            attnt_block (pytorch object): A structure made up of smaller individual layers.
+        """
         attnt_block = nn.Sequential(
             nn.Conv2d(in_channels=channel[0], out_channels=channel[1], kernel_size=1, padding=0),
             nn.BatchNorm2d(channel[1]),
@@ -132,7 +148,7 @@ class SegNet(nn.Module):
         
 
 class Decoder(nn.Module):
-
+    """A class for the decoder of the segnet network."""
     def __init__(self):
 
         super().__init__()
@@ -161,6 +177,17 @@ class Decoder(nn.Module):
 
     def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
 
+    
+        """A function creating an attention block consisting of convolution, batch normalisation and relu.
+        Args:
+            in_ch (int): Number of input channels.
+            out_ch (int): Number of output channels.
+            padding (int, optional): Padding for the convolution stage. Default is 1.
+        
+        Returns:
+            attnt_block (pytorch object): An attention block made up of three smaller layers.
+        
+        """
         layer=[]
         layer.append(nn.BatchNorm2d(in_ch))
         layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))

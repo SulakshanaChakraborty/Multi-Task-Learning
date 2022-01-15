@@ -5,6 +5,16 @@ from matplotlib import pyplot as plt
 import os.path
 
 def add_noise(data_path, std_high=20, mean_high=10):
+    """ A function which creates noisy images.
+
+    Args:
+        data_path (path): file path of the respective dataset.
+        std_high (int, optional): Standard deviation. Defaults to 20.
+        mean_high (int, optional): Mean. Defaults to 10.
+
+    Returns:
+        images_noisy_filepath: file path of the noisy images.
+    """
         # convert h5 to numpy
 
         images_noisy_filepath = pathlib.Path(data_path + '/noisy_data.h5')

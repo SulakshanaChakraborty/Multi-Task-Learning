@@ -4,6 +4,14 @@ import numpy as np
 import cv2
 
 def rgb2lab(img_path,destination_path):
+    """A function used to convert the rgb colour space images to the 
+    lab colour space, where l is the lightness channel, a is the red green-channel and 
+    b is the blue-yellow channel.
+
+    Args:
+    img_path (path): file path of the images to be converted.
+    destination_path (path): file of the where converted images should be transfered.
+    """
 
     hf=h5py.File(os.path.join(destination_path,'Labimages.h5'), 'w')
     
