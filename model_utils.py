@@ -56,7 +56,7 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = True)
     
     elif model_type == 'MTL-Attention':
-        model = pt_networks.SegNet_attnt.SegNet().to(device)
+        model = pt_networks.SegNet_Attnt.SegNet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=1e-4)  
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
