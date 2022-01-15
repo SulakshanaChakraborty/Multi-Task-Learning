@@ -190,7 +190,7 @@ def process_args():
     ap.add_argument("-m", '--model_type',
                     help='type of model to build (model name)',
                     default='MTL-Attention')
-    ap.add_argument("-d", '--device', help='which device to run on (cuda/gpu)', default='cuda')
+    ap.add_argument("-d", '--device', help='which device to run on (cuda/cpu)', default='cuda')
     ap.add_argument("-b", '--batch_size', help='mini-batch size', default=5)
     ap.add_argument("-tr", '--train', help='train the model (y/n)', default='n')
     ap.add_argument("-ts", '--test', help='test the model (y/n)', default='y')
