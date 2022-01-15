@@ -28,7 +28,7 @@ def run_cw2(args, train=True, test=False): #  visualize=True):
 
     print("--------------------------------------------------------------------------------")
     print(f"Model chosen: {model_type} , device: {device}, mini-batch size: {batch_size}")
-    print(f"Mode: Train- {train}, Test- {test}")
+    print(f"Train: {train}, Number of Epochs: {epochs}, Test: {test}")
     print("--------------------------------------------------------------------------------")
 
     # data loaders

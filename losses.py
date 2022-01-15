@@ -5,11 +5,13 @@ import torch.nn as nn
 class BaselineLoss(nn.Module):
     """Class for computation of the loss for the baseline network.
     """
-    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True):
+    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True,device='cuda'):
         super(BaselineLoss, self).__init__()
         self.flag_labels = flag_labels
         self.flag_segmentations = flag_segmentations
         self.flag_bboxes = flag_bboxes
+
+        self.device=device
 
         ######################
         # Define weights
@@ -27,23 +29,23 @@ class BaselineLoss(nn.Module):
                 target_bboxes):
 
         # Loss for labels.
-        device = 'cuda'
+    
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = torch.zeros(1, requires_grad=True).to(device)
+            labels_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for segmentations.
         if self.flag_segmentations:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = torch.zeros(1, requires_grad=True).to(device)
+            segmentations_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = torch.zeros(1, requires_grad=True).to(device)
+            bboxes_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         #    loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         #    loss = torch.stack([labels_loss, segmentations_loss])
@@ -58,19 +60,14 @@ class BaselineLoss(nn.Module):
 class OpencvFilterLoss(nn.Module):
     """Class for the computation of the loss for the canny filter.
     """
-    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_filters=True):
+    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_filters=True,device='cuda'):
         super(OpencvFilterLoss, self).__init__()
         self.flag_labels = flag_labels
         self.flag_segmentations = flag_segmentations
         self.flag_bboxes = flag_bboxes
         self.flag_filters = flag_filters
 
-        ######################
-        # Define weights
-        ######################
-        device = 'cpu'
-        self.weights = torch.tensor([0.5, 1], requires_grad=True).to(device)
-
+        self.device=device
         ######################
         # Defines losses
         ######################
@@ -88,25 +85,25 @@ class OpencvFilterLoss(nn.Module):
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = torch.zeros(1, requires_grad=True)
+            labels_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for segmentations.
         if self.flag_segmentations:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = torch.zeros(1, requires_grad=True)
+            segmentations_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = torch.zeros(1, requires_grad=True)
+            bboxes_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for opencv filter
         if self.flag_filters:
             filters_loss = self.filters_criterion(input_filters, target_filters)
         else:
-            filters_loss = torch.zeros(1, requires_grad=True)
+            filters_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         labels_weight = 0.1
         segmentation_weight = 0.7
@@ -124,7 +121,7 @@ class OpencvFilterLoss(nn.Module):
 class ColorLoss(nn.Module):
     """Class for the computation of the loss for the colorisation auxillary task.
     """
-    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_color=True):
+    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_color=True,device='cuda'):
         super(ColorLoss, self).__init__()
         self.flag_labels = flag_labels
         self.flag_segmentations = flag_segmentations
@@ -134,8 +131,8 @@ class ColorLoss(nn.Module):
         ######################
         # Define weights
         ######################
-        device = 'cuda'
-        self.weights = torch.tensor([0.5, 1], requires_grad=True).to(device)
+     
+        self.device=device
 
         ######################
         # Defines losses
@@ -151,30 +148,30 @@ class ColorLoss(nn.Module):
                 target_bboxes):
 
         # Loss for labels.
-        device = 'cuda'
+      
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = torch.zeros(1, requires_grad=True).to(device)
+            labels_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for segmentations.
         if self.flag_labels:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = torch.zeros(1, requires_grad=True).to(device)
+            segmentations_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = torch.zeros(1, requires_grad=True).to(device)
+            bboxes_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         if self.flag_color:
 
             ab_loss = self.ab_criterion(input_img, target_img)
 
         else:
-            ab_loss = torch.zeros(1, requires_grad=True).to(device)
+            ab_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         loss = 1 * labels_loss + 20 * segmentations_loss + 0.00007 * bboxes_loss * 2 + ab_loss
 
@@ -262,7 +259,7 @@ class SoftAdaptLoss(nn.Module):
 class DenoisingLoss(nn.Module):
     """Class for the computing the loss of the denoising model.
     """
-    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_denoise=True):
+    def __init__(self, flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_denoise=True,device='cuda'):
         super(DenoisingLoss, self).__init__()
         self.flag_labels = flag_labels
         self.flag_segmentations = flag_segmentations
@@ -272,8 +269,8 @@ class DenoisingLoss(nn.Module):
         ######################
         # Define weights
         ######################
-        device = 'cpu'
-        self.weights = torch.tensor([0.5, 1], requires_grad=True).to(device)
+        self.device=device
+        
 
         ######################
         # Defines losses
@@ -288,30 +285,30 @@ class DenoisingLoss(nn.Module):
                 target_segmentations,
                 target_bboxes, target_denoise):
 
-        device = 'cuda'
+        #device = 'cuda'
 
         # Loss for labels.
         if self.flag_denoise:
             denoise_loss = self.denoising_criterion(input_denoise, target_denoise)
         else:
-            denoise_loss = torch.zeros(1, requires_grad=True).to(device)
+            denoise_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         if self.flag_labels:
             labels_loss = self.labels_criterion(input_labels, target_labels)
         else:
-            labels_loss = torch.zeros(1, requires_grad=True).to(device)
+            labels_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for segmentations.
         if self.flag_segmentations:
             segmentations_loss = self.segmentations_criterion(input_segmentations, target_segmentations)
         else:
-            segmentations_loss = torch.zeros(1, requires_grad=True).to(device)
+            segmentations_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         # Loss for bounding boxes.
         if self.flag_bboxes:
             bboxes_loss = self.bboxes_criterion(input_bboxes, target_bboxes)
         else:
-            bboxes_loss = torch.zeros(1, requires_grad=True).to(device)
+            bboxes_loss = torch.zeros(1, requires_grad=True).to(self.device)
 
         #    loss = torch.cat([labels_loss, segmentations_loss, bboxes_loss])
         #    loss = torch.stack([labels_loss, segmentations_loss])
