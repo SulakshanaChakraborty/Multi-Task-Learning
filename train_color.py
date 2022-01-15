@@ -7,13 +7,14 @@ import pt_networks.segnet
 import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
-model_name = 'Segnet-Colourisation-Pretrained'
-log_name='COLOUR/'
-date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
-writer = SummaryWriter('logs/{}{}'.format(log_name,date))
+
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device):
     
+    model_name = 'Segnet-Colourisation-Pretrained'
+    log_name=model_type
+    date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
+    writer = SummaryWriter('logs/{}{}'.format(log_name,date))
     best_val_accuracy=0
     best_val_iou=0
 
@@ -171,4 +172,4 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
         #  best_val_accuracy=round(np.mean(val_accuracy),3)
-        torch.save(model.state_dict(), 'MTL-ColourNet-Pretrained.pt')
+        torch.save(model.state_dict(), model_type+'.pt')

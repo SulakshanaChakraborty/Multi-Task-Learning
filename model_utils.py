@@ -1,60 +1,92 @@
 import sys
 import torch
-import pt_networks
 import torch.optim as optim
 import losses
 import pt_networks.segnet
-import pt_networks.SegNet_Attnt
-import pt_networks.SegNet_Attnt_reformat
+import pt_networks.SegNet_attnt
 import torchvision.models as models
-import pt_networks.SegNet_Attention_Filters
+import pt_networks.SegNet_attnt_canny
+import pt_networks.SegNet_attnt_color
+import pt_networks.SegNet_attnt_denoising
 import pt_networks.segnet_color
-import pt_networks.Segnet_attnt_denoising
-import pt_networks.SegNet_Attnt_reformat_color
 import pt_networks.SegNet_attnt_canny
 import pt_networks.SegNet_canny
 
 
 def get_model(model_type, device='cpu', load_pre_trained_weights=False):
-    if model_type == 'baseline':
-
+    if model_type == 'Segnet-1task-untrained':
         model = pt_networks.segnet.Segnet().to(device)
-        # vgg16 = models.vgg16(pretrained=True).to(device)
-        # model.vgg16_init(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  
+        loss_fn = losses.BaselineLoss(flag_labels = False, flag_segmentations= True, flag_bboxes = False)
+
+    if model_type == 'Segnet-1task':
+        model = pt_networks.segnet.Segnet().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6) 
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg16_init(vgg16) 
+        loss_fn = losses.BaselineLoss(flag_labels = False, flag_segmentations= True, flag_bboxes = False)
+    
+    elif model_type == 'MTL-Segnet-untrained':
+        model = pt_networks.segnet.Segnet().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4) 
+
+        loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = True)
+    
+    elif model_type == 'MTL-Segnet':
+        model = pt_networks.segnet.Segnet().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)  
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg16_init(vgg16)
+        loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = True)
+    
+    elif model_type == 'MTL-Attention':
+        model = pt_networks.SegNet_attnt.SegNet().to(device)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg_pretrained(vgg16)
+        loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = True)
+
+
+    elif model_type == 'MLT-Attention-with-colourization':
+        model = pt_networks.SegNet_attnt_color.SegNet.to(device)
         if load_pre_trained_weights:
-            model.load_state_dict(torch.load('Segnet3task3layer.pt'))
-        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.BaselineLoss(False, True, False)
-    elif model_type == 'attention_opencv_filter':
-        model = pt_networks.SegNet_Attention_Filters.SegNetFilters().to(device)
+            vgg16 = models.vgg16(pretrained=True).to(device)
+            model.vgg_pretrained(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        loss_fn = losses.ColorLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
+                                          flag_color=True)
+    elif model_type == 'MTL-Attention-with-denoising':
+        model = pt_networks.SegNet_attnt_denoising.SegNet().to(device)
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg_pretrained(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        loss_fn = losses.DenoisingLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
+                                          flag_denoise=True)
+
+    elif model_type == 'MTL-Attention-with-canny':
+        model = pt_networks.SegNet_attnt_canny.SegNetFilters().to(device)
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg_pretrained(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_filters=True)
+
+    elif model_type == 'MTL-Attention-without-bbox':
+        model = pt_networks.SegNet_attnt.SegNet().to(device)
+        vgg16 = models.vgg16(pretrained=True).to(device)
+        model.vgg_pretrained(vgg16)
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = False)
+
+    elif model_type == 'MTL-Attention-without-classification':
+        model = pt_networks.SegNet_attnt.SegNet().to(device)
         if load_pre_trained_weights:
             vgg16 = models.vgg16(pretrained=True).to(device)
             model.vgg_pretrained(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
-                                          flag_filters=True)
-    elif model_type == 'color_segnet':
-        model = pt_networks.segnet_color.Segnet().to(device)
-        vgg16 = models.vgg16(pretrained=True).to(device)
-        model.vgg16_init(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
-        loss_fn = losses.ColorLoss(True, True, True, True)
+        loss_fn = losses.OpencvFilterLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=True)
 
-    elif model_type == 'color_attention':
-        model = pt_networks.SegNet_Attnt_reformat_color.SegNet().to(device)
-        vgg16 = models.vgg16(pretrained=True).to(device)
-        model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
-        loss_fn = losses.ColorLoss(True, True, True, True)
-
-    elif model_type == 'denoising_attention':
-        model = pt_networks.Segnet_attnt_denoising.SegNet().to(device)
-        vgg16 = models.vgg16(pretrained=True).to(device)
-        model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
-        loss_fn = losses.DenoisingLoss(True, True, True, True)
-
-    elif model_type == 'opencv_filter':
+    elif model_type == 'MTL-segnet-with-canny':
         model = pt_networks.SegNet_canny.SegnetOpencv().to(device)
         if load_pre_trained_weights:
             vgg16 = models.vgg16(pretrained=True).to(device)
@@ -62,23 +94,15 @@ def get_model(model_type, device='cpu', load_pre_trained_weights=False):
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_filters=True)
-
-    elif model_type == 'attention_opencv_filter':
-
-        model = pt_networks.SegNet_attnt_canny.SegNetFilters().to(device)
+                                          
+    elif model_type == 'MTL-segnet-with-colourization':
+        model = pt_networks.segnet_color.Segnet().to(device)
         if load_pre_trained_weights:
             vgg16 = models.vgg16(pretrained=True).to(device)
-            model.vgg_pretrained(vgg16)
+            model.vgg16_init(vgg16)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
-        loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
-                                          flag_filters=True)
-
-    elif model_type == 'mlt_attention':
-        model = pt_networks.seg.SegNet().to(device)
-        vgg16 = models.vgg16(pretrained=True).to(device)
-        model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)
-        loss_fn = losses.BaselineLoss(False, True, True)  # todo: update
+        loss_fn = losses.ColorLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
+                                          flag_color=True)
 
     else:
         sys.exit(f'Model Type: {model_type} is not implemented.')

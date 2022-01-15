@@ -9,13 +9,12 @@ import torch.optim as optim
 from datetime import datetime
 from torch.utils.tensorboard import SummaryWriter
 
-log_name='Segnet3TaskNopretraining/'
-#date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
-date='200102bbox0.00007'
-writer = SummaryWriter('logs/{}{}'.format(log_name,date))
+
 
 def train_model(model_type, train_loader, validation_loader, model, optimizer, loss_criterion, epochs, device,soft_adapt = False):
-
+    log_name='model_type/'
+    date=datetime.now().strftime("%Y.%m.%d.%H.%M.%S")
+    writer = SummaryWriter('logs/{}{}'.format(log_name,date))
 
     best_val_iou=0
 
@@ -247,5 +246,5 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
        # if round(np.mean(val_iou),3) > best_val_iou: #and round(np.mean(val_accuracy),3) > best_val_accuracy:
 
         best_val_iou=round(np.mean(val_iou),3)
-        torch.save(model.state_dict(), 'Segnet3task.pt')
+        torch.save(model.state_dict(), model_type+'.pt')
       

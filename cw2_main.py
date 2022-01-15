@@ -11,7 +11,7 @@ import denoising_loader
 import argparse
 
 
-def run_cw2(args, train=True, test=False, visualize=True):
+def run_cw2(args, train=True, test=False): #  visualize=True):
     ###############################
     # Load data
     ###############################
@@ -21,192 +21,172 @@ def run_cw2(args, train=True, test=False, visualize=True):
     batch_size = int(args.batch_size)
     device = args.device
     model_type = args.model_type
+    epochs = int(args.epochs)
 
     print("--------------------------------------------------------------------------------")
     print(f"Model chosen: {model_type} , device: {device}, mini-batch size: {batch_size}")
-    print(f"Mode chose: Train- {train}, Test- {test}, Visualize- {visualize}")
+    print(f"Mode: Train- {train}, Test- {test}")
     print("--------------------------------------------------------------------------------")
 
-    train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
-                                                                                 validation_path=validation_path,
-                                                                                 test_path=test_path,
-                                                                                 batch_size=batch_size,
-                                                                                 )
-
-    ###############################
-    # Train Model
-    ###############################
-    # baseline' or 'mlt_hard' or 'mlt_attention' or 'denoising_attention'
-    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-
-    # model_type = 'color_segnet' #baseline' or 'mlt_hard' or 'mlt_attention' or 'mlt_gscnn'\
-    if model_type == 'color_segnet':
+    # data loaders
+    if model_type == 'MTL-segnet-with-colourization' or model_type == 'MLT-Attention-with-colourization':
         train_loader, validation_loader, test_loader = lab_loader.create_data_loaders(train_path=train_path,
                                                                                       validation_path=validation_path,
                                                                                       test_path=test_path,
                                                                                       batch_size=batch_size,
                                                                                       )
 
-    if train and model_type == 'color_segnet' or model_type == 'color_attention':
-        print("Training the model!")
-        model = train_color.train_model(model_type=model_type, train_loader=train_loader,
-                                        validation_loader=validation_loader,
-                                        model=model, optimizer=optimizer, loss_criterion=loss_criterion,
-                                        epochs=30,
-                                        device=device
-                                        )
-
-    if model_type == 'denoising_attention':
+    elif model_type == 'MTL-Attention-with-denoising':
         train_loader, validation_loader, test_loader = denoising_loader.create_data_loaders(train_path=train_path,
                                                                                             validation_path=validation_path,
                                                                                             test_path=test_path,
                                                                                             batch_size=batch_size,
                                                                                             noisy=True
                                                                                             )
+    else:
+        train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
+                                                                                 validation_path=validation_path,
+                                                                                 test_path=test_path,
+                                                                                 batch_size=batch_size,
+                                                                                 )
 
-    if train and model_type == 'denoising_attention':
+    # fetch model, loss criterion and optimizer
+
+    model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+
+
+    ###############################
+    # Train Model
+    ###############################
+   
+    if train:
         print("Training the model!")
-        model = train_denoising.train_model(model_type=model_type, train_loader=train_loader,
+        
+        if model_type == 'MTL-segnet-with-colourization' or model_type == 'MLT-Attention-with-colourization':
+            
+            model = train_color.train_model(model_type=model_type, train_loader=train_loader,
                                             validation_loader=validation_loader,
                                             model=model, optimizer=optimizer, loss_criterion=loss_criterion,
-                                            epochs=30,
+                                            epochs=epochs,
+                                            device=device
+                                            )
+        elif model_type == 'MTL-Attention-with-denoising':
+            model = train_denoising.train_model(model_type=model_type, train_loader=train_loader,
+                                            validation_loader=validation_loader,
+                                            model=model, optimizer=optimizer, loss_criterion=loss_criterion,
+                                            epochs=epochs,
                                             device=device
                                             )
 
-        # Train model
 
-
-    elif train:
-        print("Training the model!")
-        model = train_model.train_model(model_type=model_type, train_loader=train_loader,
-                                        validation_loader=validation_loader,
-                                        model=model, optimizer=optimizer, loss_criterion=loss_criterion,
-                                        epochs=30,
-                                        device=device
-                                        )
+        else:
+            model = train_model.train_model(model_type=model_type, train_loader=train_loader,
+                                            validation_loader=validation_loader,
+                                            model=model, optimizer=optimizer, loss_criterion=loss_criterion,
+                                            epochs=epochs,
+                                            device=device
+                                            )
     ###############################
     # Test Model
     ###############################
-    model_path_list_attention = ['Attention_no_classification.pt']
-    model_path_canny = ['models/Canny_Attention_Pretrained_30Epochs.pt']
-    model_path_list_seg = []
-    model_path_list_color = []
-    model_path_list_color_attention = ['MTL-ColourNet_attetion.pt']
-    model_path_list_denoising = []
     if test:
-        if model_path_canny:
-            for model_path in model_path_canny:
-                model_type = 'attention_opencv_filter'
-                model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-                print("Evaluating the model!")
-                model = model_utils.load_model(model=model, model_path=model_path)
-                test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device,
-                                                  loss_criterion=loss_criterion, model_name=model_path)
+        print("Testing the model!")
+        model_path_list = ['models/Segnet-1task-untrained.pt','models/Segnet-1task.pt','models/MTL-Segnet-untrained.pt','models/MLT-Segnet.pt'
+        ,'models/MTL-Attention.pt','models/MTL-Attention-with-colourization.pt','models/MTL-Attention-with-denoising.pt','models/MTL-Attention-with-canny.pt'
+        ,'models/MTL-Attention-without-bbox.pt','models/MTL-Attention-without-classification.pt','models/MTL-segnet-with-canny.pt'
+        ,'models/MTL-segnet-with-colourization.pt']
 
-        if model_path_list_attention:
-            for model_path in model_path_list_attention:
-                train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
-                                                                                             validation_path=validation_path,
-                                                                                             test_path=test_path,
-                                                                                             batch_size=batch_size,
-                                                                                             )
-                model_type = 'mlt_attention'
-                model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-                print("Evaluating the model!")
-                model = model_utils.load_model(model=model, model_path=model_path)
-                test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device,
-                                                  loss_criterion=loss_criterion, model_name=model_path)
+        model_type_list = ['Segnet-1task-untrained','Segnet-1task','MTL-Segnet-untrained','MTL-Segnet','MTL-Attention'
+        ,'MLT-Attention-with-colourization','MTL-Attention-with-denoising','MTL-Attention-with-canny'
+        ,'MTL-Attention-without-bbox','MTL-Attention-without-classification','MTL-segnet-with-canny'
+        ,'MTL-segnet-with-colourization']
 
-        if model_path_list_seg:
-            for model_path in model_path_list_seg:
-                model_type = 'baseline'
-                train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
-                                                                                             validation_path=validation_path,
-                                                                                             test_path=test_path,
-                                                                                             batch_size=batch_size,
-                                                                                             )
-                model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-                model = model_utils.load_model(model=model, model_path=model_path)
-                # Evaluate over testing dataset.
-                print("Evaluating the model!")
-                test_model.evaluate_opencv_filters(test_loader=test_loader, model=model, device=device,
-                                                   loss_criterion=loss_criterion, model_name=model_path)
+        params_dict = dict(zip(model_type_list,model_path_list))
 
-        if model_path_list_color:
-            for model_path in model_path_list_color:
-                model_type = 'color_segnet'
-                train_loader, validation_loader, test_loader = lab_loader.create_data_loaders(train_path=train_path,
+        model_path = params_dict[model_type]
+
+        if model_type == 'MTL-segnet-with-colourization' or model_type == 'MLT-Attention-with-colourization':
+
+            model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+            train_loader, validation_loader, test_loader = lab_loader.create_data_loaders(train_path=train_path,
                                                                                               validation_path=validation_path,
                                                                                               test_path=test_path,
                                                                                               batch_size=batch_size,
                                                                                               )
 
-                model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-                model = model_utils.load_model(model=model, model_path=model_path)
-                test_model.evaluate_color_on_data(test_loader=test_loader, model=model, device=device,
+            model = model_utils.load_model(model=model, model_path=model_path)
+            test_model.evaluate_color_on_data(test_loader=test_loader, model=model, device=device,
                                                   loss_criterion=loss_criterion, model_name=model_path)
-        if model_path_list_color_attention:
-            for model_path in model_path_list_color_attention:
-                model_type = 'color_attention'
-                train_loader, validation_loader, test_loader = lab_loader.create_data_loaders(train_path=train_path,
-                                                                                              validation_path=validation_path,
-                                                                                              test_path=test_path,
-                                                                                              batch_size=batch_size,
-                                                                                              )
-
-                model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-                model = model_utils.load_model(model=model, model_path=model_path)
-                test_model.evaluate_color_on_data(test_loader=test_loader, model=model, device=device,
-                                                  loss_criterion=loss_criterion, model_name=model_path)
-
-        if model_path_list_denoising:
-            for model_path in model_path_list_denoising:
-                model_type = 'denoising_attention'
-                train_loader, validation_loader, test_loader = denoising_loader.create_data_loaders(
+        
+        elif model_type == 'MTL-Attention-with-denoising':
+            train_loader, validation_loader, test_loader = denoising_loader.create_data_loaders(
                     train_path=train_path,
                     validation_path=validation_path,
                     test_path=test_path,
                     batch_size=batch_size, noisy=True
                 )
-                model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
-                model = model_utils.load_model(model=model, model_path=model_path)
-
-                # Evaluate over testing dataset.
-                print("Evaluating the model!")
-                test_model.evaluate_denoising(test_loader=test_loader, model=model, device=device,
+            model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+            model = model_utils.load_model(model=model, model_path=model_path)
+            
+            test_model.evaluate_denoising(test_loader=test_loader, model=model, device=device,
                                               loss_criterion=loss_criterion, model_name=model_path)
 
-    ###############################
-    # Run visualization
-    ###############################
-    if visualize:
-        print(" Visualizing data!")
-        images, labels, segmentations, bboxes = load_data.take_random_samples(data_loader=test_loader, n_samples=16)
-        displaying.visualise_results(model=model, images=images, labels=labels, segmentation=segmentations,
-                                     bboxes=bboxes)
+        elif model_type == ' ':
+            
+            train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
+                                                                                             validation_path=validation_path,
+                                                                                             test_path=test_path,
+                                                                                             batch_size=batch_size)
 
-    print('CW2 is done! Well, almost done.')
+            model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+            model = model_utils.load_model(model=model, model_path=model_path)
+            test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device,
+                                            loss_criterion=loss_criterion, model_name=model_path)
+
+        else:
+            train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
+                                                                                             validation_path=validation_path,
+                                                                                             test_path=test_path,
+                                                                                             batch_size=batch_size)
+                                                                                             
+            model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
+           
+            model = model_utils.load_model(model=model, model_path=model_path,device = device)
+            test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device,
+                                                loss_criterion=loss_criterion, model_name=model_path)
+
+    # ###############################
+    # # Run visualization
+    # ###############################
+    # if visualize:
+    #     print(" Visualizing data!")
+    #     images, labels, segmentations, bboxes = load_data.take_random_samples(data_loader=test_loader, n_samples=16)
+    #     displaying.visualise_results(model=model, images=images, labels=labels, segmentation=segmentations,
+    #                                  bboxes=bboxes)
+
+    print('Completed!')
 
 
 def process_args():
     ap = argparse.ArgumentParser(description="COMP0090 cw 2 script")
     ap.add_argument("-m", '--model_type',
-                    help='type of model to build (baseline/mlt_hard/mlt_attention/denoising_attention/color_segnet)',
-                    default='baseline')
+                    help='type of model to build (model name)',
+                    default='MTL-Attention')
     ap.add_argument("-d", '--device', help='which device to run on (cuda/gpu)', default='cuda')
     ap.add_argument("-b", '--batch_size', help='mini-batch size', default=5)
     ap.add_argument("-tr", '--train', help='train the model (y/n)', default='n')
     ap.add_argument("-ts", '--test', help='test the model (y/n)', default='y')
-    ap.add_argument("-v", '--visualize', help='visualise the dataset (y/n)', default='n')
+    ap.add_argument("-e", '--epochs', help='Number of epochs', default=30)
+    #ap.add_argument("-v", '--visualize', help='visualise the dataset (y/n)', default='n')
     return ap.parse_args()
 
 
 if __name__ == '__main__':
     args = process_args()
 
-    train, test, visualize = (False, False, False)
+    train, test = (False, False)
     if args.train == 'y': train = True
     if args.test == 'y': test = True
-    if args.visualize == 'y':   visualize = True
+    #if args.visualize == 'y':   visualize = True
 
-    run_cw2(args, train=train, test=test, visualize=visualize)
+    run_cw2(args, train=train, test=test) #, visualize=visualize)
