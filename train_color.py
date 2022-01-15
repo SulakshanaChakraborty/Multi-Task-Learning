@@ -185,8 +185,4 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
         #  best_val_iou=round(np.mean(val_iou),3)
         #  best_val_accuracy=round(np.mean(val_accuracy),3)
-<<<<<<< HEAD
         torch.save(model.state_dict(), model_type+'.pt')
-=======
-        torch.save(model.state_dict(), 'MTL-ColourNet-Pretrained.pt')
->>>>>>> 5118d3ee43593c35a33b528e1dbe0f00f61b8e74
