@@ -134,7 +134,7 @@ def run_cw2(args, train=True, test=False): #  visualize=True):
             test_model.evaluate_denoising(test_loader=test_loader, model=model, device=device,
                                               loss_criterion=loss_criterion, model_name=model_path)
 
-        elif model_type == ' ':
+        elif model_type == 'MTL-Attention-with-canny':
             
             train_loader, validation_loader, test_loader = load_data.create_data_loaders(train_path=train_path,
                                                                                              validation_path=validation_path,
@@ -143,7 +143,7 @@ def run_cw2(args, train=True, test=False): #  visualize=True):
 
             model, optimizer, loss_criterion = model_utils.get_model(model_type=model_type, device=device)
             model = model_utils.load_model(model=model, model_path=model_path)
-            test_model.evaluate_model_on_data(test_loader=test_loader, model=model, device=device,
+            test_model.evaluate_opencv_filters(test_loader=test_loader, model=model, device=device,
                                             loss_criterion=loss_criterion, model_name=model_path)
 
         else:
