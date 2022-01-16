@@ -56,16 +56,8 @@ class SegNet(nn.Module):
                     else:
                         if isinstance(laye, nn.Conv2d): 
                             encoder_layers.append(laye)
-
-        # print("encoder_layers len",len(encoder_layers))
-        # print("vgg_layers len",len(vgg_layers))
-
-        for layer1, layer2 in zip(vgg_layers, encoder_layers):
-            # print("############")
-            # print("layer_vgg:",layer1)
-            # print("layer_encoder:",layer2)
-            # print("############")
-            
+                            
+        for layer1, layer2 in zip(vgg_layers, encoder_layers):            
 
             layer2.weight.data = layer1.weight.data
             layer2.bias.data = layer1.bias.data
@@ -225,10 +217,6 @@ class Decoder(nn.Module):
 
         return x
 
-segnet = SegNet()
-# total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
-# print(segnet) 
-# print("Total number of parameters: ",total_param)
 
         
 

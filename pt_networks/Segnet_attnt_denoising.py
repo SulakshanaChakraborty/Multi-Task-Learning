@@ -30,17 +30,6 @@ class SegNet(nn.Module):
         self.down_sampling = nn.MaxPool2d(kernel_size=2, stride=2, return_indices=True)
         self.up_sampling = nn.MaxUnpool2d(kernel_size=2, stride=2)
 
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.xavier_normal_(m.weight)
-                nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm2d):
-                nn.init.constant_(m.weight, 1)
-                nn.init.constant_(m.bias, 0)
-            elif isinstance(m, nn.Linear):
-                nn.init.xavier_normal_(m.weight)
-                nn.init.constant_(m.bias, 0)
-
         # define attention for each task 
         # initialize first layer
         self.encoder_attention = nn.ModuleList([nn.ModuleList([self.attnt_layer([channels_encoder[1], channels_encoder[1], channels_encoder[1]])]) for _ in range(4)])
@@ -204,75 +193,3 @@ class SegNet(nn.Module):
 
         return aux_pred_c,aux_pred_bb, target_seg_pred,aux_pred_denoising
         
-
-# class Decoder(nn.Module):
-
-#     def __init__(self):
-
-#         super().__init__()
-#         self.layer_52_t=self.bn_conv_relu(512,512)
-#         self.layer_51_t=self.bn_conv_relu(512,512)
-#         self.layer_50_t=self.bn_conv_relu(512,512)
-
-        
-#         self.layer_42_t=self.bn_conv_relu(512,512)
-#         self.layer_41_t=self.bn_conv_relu(512,512)
-#         self.layer_40_t=self.bn_conv_relu(512,256)
-
-#         self.layer_32_t=self.bn_conv_relu(256,256)
-#         self.layer_31_t=self.bn_conv_relu(256,256)
-#         self.layer_30_t=self.bn_conv_relu(256,128)
-
-#         self.layer_21_t=self.bn_conv_relu(128,128)
-#         self.layer_20_t=self.bn_conv_relu(128,64)
-
-    
-#         self.layer_11_t=self.bn_conv_relu(64,64)
-#         self.layer_10_t=self.bn_conv_relu(64,2) 
-
-#         self.upsample = nn.MaxUnpool2d(2, stride=2)
-
-
-#     def bn_conv_relu(self,in_ch,out_ch,kernel_size=3,padding=1,stride=1):
-
-#         layer=[]
-#         layer.append(nn.BatchNorm2d(in_ch))
-#         layer.append(nn.Conv2d(in_channels=in_ch,out_channels=out_ch,kernel_size=kernel_size,padding=padding,stride=stride))
-#         layer.append(nn.ReLU(inplace=True))
-
-#         return nn.Sequential(*layer)
-
-#     def forward(self,x,indices,x_shapes):
-#         i1,i2,i3,i4,i5 = indices
-#         x1,x2,x3,x4,x5 = x_shapes
-                    
-#         x=self.upsample(x,i5,output_size=x4)
-#         x=self.layer_52_t(x)
-#         x=self.layer_51_t(x)
-#         x=self.layer_50_t(x)
-
-
-#         x=self.upsample(x,i4,output_size=x3)
-#         x=self.layer_42_t(x)
-#         x=self.layer_41_t(x)
-#         x=self.layer_40_t(x)
-
-#         x=self.upsample(x,i3,output_size=x2)
-#         x=self.layer_32_t(x)
-#         x=self.layer_31_t(x)
-#         x=self.layer_30_t(x)
-
-#         x=self.upsample(x,i2,output_size=x1)
-#         x=self.layer_21_t(x)
-#         x=self.layer_20_t(x)
-        
-#         x=self.upsample(x,i1)
-#         x=self.layer_11_t(x)
-#         x=self.layer_10_t(x)
-
-#         return x
-
-# segnet = SegNet()
-# total_param = sum(p.numel() for p in segnet.parameters() if p.requires_grad)
-#print(segnet) 
-#print("Total number of parameters: ",total_param)
