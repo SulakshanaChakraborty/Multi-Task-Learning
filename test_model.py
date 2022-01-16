@@ -159,6 +159,7 @@ def evaluate_color_on_data(test_loader, model, device, loss_criterion, model_nam
     print("AB", round(np.mean(test_ab_loss), 3), file=file)
     file.close()
 
+
 def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""):
     """A function for the testing denoising on the specified testing data.
 
@@ -216,7 +217,7 @@ def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""
             test_accuracy.append(np.sum((binary.detach().cpu().numpy() == pred_ax).astype(int)) / len(binary))
             test_loss.append(loss.item())
 
-            #print(test_accuracy[i - 1], "minibatch acc")
+            # print(test_accuracy[i - 1], "minibatch acc")
 
             test_label_loss.append(labels_loss.data.item())
             test_segmentation_loss.append(segmentation_loss.data.item())
