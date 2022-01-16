@@ -57,9 +57,32 @@ following is the list of model type:
 
 Please Note: 
 -----------
-Before running the 'MTL-Attention-with-colorization' model an additional colorisation script save_lab_images.py has to be run. This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
+Before running the 'MTL-Attention-with-colorization' model an additional colorisation script save_lab_images.py has to be run.
+This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
 
+-------------------------------------------------------------------------------------------------------------
+Visualising  Results:
 
+During testing, a log file will generate with the following metrics:
+
+Loss:  The total loss of the model
+Test Accu: The classification accuracy 
+IOU: The Average segmentaion IOU
+BBOX-loss: The bouding box regression loss
+Segmnetaiton-loss: The segmentaion loss
+Label-loss: the classification loss
+Jac: The weighted segmentaion IOU
+F1s: F1 score for segmentation
+
+For the Self Supervised task, one additional metric will be shown-
+Denoising-loss: the denoising loss
+Ab-loss: The colourization loss
+OpenCVFilter-loss: The Canny Edge detection loss
+
+The Tensorboard logs will be generated in the logs folder.
+To view them, the following command has to executed:
+
+%tensorboard --logdir logs/
 
 --------------------------------------------------------------------------------------------------------------
 Data Loading: 
