@@ -28,7 +28,7 @@ def get_model(model_type, device='cpu'):
         optimizer: The pytorch optimiser (Adam).
         loss_fn: The loss function for the respective model/network.
     """
-    if model_type == 'Segnet-1task-untrained':
+    if model_type == 'Segnet-1task-no-pretrained':
         model = pt_networks.segnet.Segnet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=5e-6)  
         loss_fn = losses.BaselineLoss(flag_labels = False, flag_segmentations= True, flag_bboxes = False,device=device)
@@ -40,7 +40,7 @@ def get_model(model_type, device='cpu'):
         model.vgg16_init(vgg16) 
         loss_fn = losses.BaselineLoss(flag_labels = False, flag_segmentations= True, flag_bboxes = False,device=device)
     
-    elif model_type == 'MTL-Segnet-untrained':
+    elif model_type == 'MTL-Segnet-no-pretrained':
         model = pt_networks.segnet.Segnet().to(device)
         optimizer = optim.Adam(model.parameters(), lr=1e-4) 
 

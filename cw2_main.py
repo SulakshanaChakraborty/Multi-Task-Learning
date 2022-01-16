@@ -108,15 +108,15 @@ def run_cw2(args, train=True, test=False, visualize=False):
     ###############################
     if test:
         print("Testing the model!")
-        model_path_list = ['models/Segnet-1task-untrained.pt', 'models/Segnet-1task.pt',
-                           'models/MTL-Segnet-untrained.pt', 'models/MTL-Segnet.pt'
+        model_path_list = ['models/Segnet-1task-no-pretrained.pt', 'models/Segnet-1task.pt',
+                           'models/MTL-Segnet-no-pretrained.pt', 'models/MTL-Segnet.pt'
             , 'models/MTL-Attention.pt', 'models/MTL-Attention-with-colorization.pt',
                            'models/MTL-Attention-with-denoising.pt', 'models/MTL-Attention-with-canny.pt'
             , 'models/MTL-Attention-without-bbox.pt', 'models/MTL-Attention-without-classification.pt',
                            'models/MTL-segnet-with-canny.pt'
             , 'models/MTL-segnet-with-colorization.pt']
 
-        model_type_list = ['Segnet-1task-untrained', 'Segnet-1task', 'MTL-Segnet-untrained', 'MTL-Segnet',
+        model_type_list = ['Segnet-1task-no-pretrained', 'Segnet-1task', 'MTL-Segnet-no-pretrained', 'MTL-Segnet',
                            'MTL-Attention'
             , 'MTL-Attention-with-colorization', 'MTL-Attention-with-denoising', 'MTL-Attention-with-canny'
             , 'MTL-Attention-without-bbox', 'MTL-Attention-without-classification', 'MTL-segnet-with-canny'

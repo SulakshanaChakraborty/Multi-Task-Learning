@@ -35,9 +35,9 @@ python cw2_main.py -m 'MTL-Segnet' -d 'cpu' -e '50' -b '10' -tr 'y' -ts 'n'
 
 following is the list of model type:
 
-'Segnet-1task-untrained' : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
+'Segnet-1task-no-pretrained' : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
 
-'MTL-Segnet-untrained' : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
+'MTL-Segnet-no-pretrained' : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
 
 'Segnet-1task': Vanilla Segnet model which outputs the segmentaion mask,with pre-trained weights in encoder
 

@@ -1,0 +1,17 @@
+Model Name: MLT-denoising-attention.pt
+Loss:  10.379 Test Accu:  0.327
+IOU:  0.824
+BBOX-loss:  1345.903
+Segmnetaiton-loss 0.371
+Label-loss 2.518
+Jac 0.829
+F1s 0.889
+Denoising-loss 0.249
+Model Name: models/MTL-Attention.pt
+Loss:  9.747 Test Accu:  0.782
+IOU:  0.873
+BBOX-loss:  358.533
+Segmnetaiton-loss 0.185
+Label-loss 6.001
+Jac 0.877
+F1s 0.924
