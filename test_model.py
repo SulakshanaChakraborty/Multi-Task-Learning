@@ -1,7 +1,6 @@
 from sklearn.metrics import jaccard_score, f1_score
 import torch
 import numpy as np
-from metrics import eval_metrics
 
 
 def evaluate_model_on_data(test_loader, model, device, loss_criterion, model_name=""):
