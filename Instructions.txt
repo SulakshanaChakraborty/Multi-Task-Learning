@@ -60,6 +60,15 @@ Please Note:
 Before running the 'MTL-Attention-with-colorization' model an additional colorisation script save_lab_images.py has to be run.
 This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
 
+Tuning of loss-weights 
+---------------------
+
+To recreate the experiment of the loss weights tuning, the following changes have to be made to the code:
+
+In line 53 of losses.py, under class BaselineLoss() the constant values have to be changed as seen below.
+
+loss = labels_loss + 20 * segmentations_loss + 0.00007 * bboxes_loss * 2
+
 -------------------------------------------------------------------------------------------------------------
 Visualising  Results:
 
