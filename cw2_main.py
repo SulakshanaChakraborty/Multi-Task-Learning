@@ -4,6 +4,7 @@ import train_model
 import test_model
 import lab_loader
 import train_color
+import train_canny
 import train_denoising
 import denoising_loader
 import data_loader_canny
