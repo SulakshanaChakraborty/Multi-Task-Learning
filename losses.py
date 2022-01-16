@@ -23,7 +23,7 @@ class BaselineLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
                 target_bboxes):
@@ -74,7 +74,7 @@ class OpencvFilterLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
         self.filters_criterion = torch.nn.L1Loss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, input_filters, target_labels,
@@ -140,7 +140,7 @@ class ColorLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
         self.ab_criterion = nn.L1Loss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, input_img, target_img, target_labels,
@@ -202,7 +202,7 @@ class SoftAdaptLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
                 target_bboxes, epoch):
@@ -339,7 +339,7 @@ class GeometricLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
                 target_bboxes):

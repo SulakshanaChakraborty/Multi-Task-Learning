@@ -78,7 +78,6 @@ def build_data_loader(data_path, pt_transforms, batch_size=16, noisy=False):
 
 
 def take_random_samples(data_loader, n_samples):
-    # todo: implement random sampler from data.
     images = 1
     labels = 2
     segmentations = 3

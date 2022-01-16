@@ -65,14 +65,14 @@ def get_model(model_type, device='cpu'):
         model = pt_networks.SegNet_attnt_color.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
         loss_fn = losses.ColorLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_color=True,device=device)
     elif model_type == 'MTL-Attention-with-denoising':
         model = pt_networks.Segnet_attnt_denoising.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
         loss_fn = losses.DenoisingLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_denoise=True,device=device)
 
@@ -80,14 +80,14 @@ def get_model(model_type, device='cpu'):
         model = pt_networks.SegNet_attnt_canny.SegNetFilters().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True, flag_filters=True,device=device)
 
     elif model_type == 'MTL-Attention-without-bbox':
         model = pt_networks.SegNet_Attnt.SegNet().to(device)
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=1e-4)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=1e-4)
         loss_fn = losses.BaselineLoss(flag_labels = True, flag_segmentations= True, flag_bboxes = False,device=device)
 
     elif model_type == 'MTL-Attention-without-classification':
@@ -95,7 +95,7 @@ def get_model(model_type, device='cpu'):
        
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg_pretrained(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)
         loss_fn = losses.BaselineLoss(flag_labels=False, flag_segmentations=True, flag_bboxes=True,device=device)
 
     elif model_type == 'MTL-segnet-with-canny':
@@ -103,7 +103,7 @@ def get_model(model_type, device='cpu'):
     
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg16_init(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)
         loss_fn = losses.OpencvFilterLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_filters=True,device=device)
                                           
@@ -112,7 +112,7 @@ def get_model(model_type, device='cpu'):
     
         vgg16 = models.vgg16(pretrained=True).to(device)
         model.vgg16_init(vgg16)
-        optimizer = optim.Adam(model.parameters(), lr=5e-6)  # todo: update
+        optimizer = optim.Adam(model.parameters(), lr=5e-6)
         loss_fn = losses.ColorLoss(flag_labels=True, flag_segmentations=True, flag_bboxes=True,
                                           flag_color=True,device=device)
 

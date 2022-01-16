@@ -14,7 +14,6 @@ def evaluate_model_on_data(test_loader, model, device, loss_criterion, model_nam
         loss_criterion (pytorch object): a loss function for the respective model type.
         model_name (str, optional): Name assigned to the model. Defaults to "".
     """
-    # todo: implement test scheme.
     test_loss = []
     test_accuracy = []
     test_iou = []
@@ -27,8 +26,6 @@ def evaluate_model_on_data(test_loader, model, device, loss_criterion, model_nam
     # Evaluate model
     # Compute Testing metrics
     for i, batch_data in enumerate(test_loader, 1):
-        # TODO: recognise denoiing, colour,
-        # TODO recognise the metrics for which model
         with torch.no_grad():
             inputs, labels = batch_data
             inputs = inputs.to(device)
@@ -88,7 +85,6 @@ def evaluate_color_on_data(test_loader, model, device, loss_criterion, model_nam
         loss_criterion (pytorch object): a loss function for the respective model type.
         model_name (str, optional): Name assigned to the model. Defaults to "".
     """
-    # todo: implement test scheme.
     test_loss = []
     test_accuracy = []
     test_iou = []
@@ -102,8 +98,6 @@ def evaluate_color_on_data(test_loader, model, device, loss_criterion, model_nam
     # Evaluate model
     # Compute Testing metrics
     for i, batch_data in enumerate(test_loader, 1):
-        # TODO: recognise denoiing, colour,
-        # TODO recognise the metrics for which model
         with torch.no_grad():
             inputs, labels = batch_data
             inputs = inputs.to(device)
@@ -170,7 +164,6 @@ def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""
         loss_criterion (pytorch object): a loss function for the respective model type.
         model_name (str, optional): Name assigned to the model. Defaults to "".
     """
-    # todo: implement test scheme.
     test_loss = []
     test_accuracy = []
     test_iou = []
@@ -186,8 +179,6 @@ def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""
     # Evaluate model
     # Compute Testing metrics
     for i, batch_data in enumerate(test_loader, 1):
-        # TODO: recognise denoiing, colour,
-        # TODO recognise the metrics for which model
         with torch.no_grad():
             inputs, labels = batch_data
             inputs = inputs.to(device)

@@ -89,7 +89,7 @@ class SoftAdaptLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
                 target_bboxes, epoch):
@@ -164,7 +164,7 @@ class GeometricLoss(nn.Module):
         # Labels loss
         self.labels_criterion = torch.nn.CrossEntropyLoss()
         self.segmentations_criterion = torch.nn.CrossEntropyLoss()
-        self.bboxes_criterion = nn.MSELoss()  # todo: update loss
+        self.bboxes_criterion = nn.MSELoss()
 
     def forward(self, input_labels, input_segmentations, input_bboxes, target_labels, target_segmentations,
                 target_bboxes):
