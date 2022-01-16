@@ -53,13 +53,13 @@ def evaluate_model_on_data(test_loader, model, device, loss_criterion, model_nam
             target_segmentation = torch.argmax(segmask, 1)
             test_mask_array = np.array(mask.cpu()).ravel()
             test_predicted_array = np.array(target_segmentation.cpu().ravel())
-            iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
+            iou = np.mean(jaccard_score(test_mask_array, test_predicted_array, average=None))
             #  print(round(iou.item(),3),"iou")
             test_jac = jaccard_score(test_mask_array, test_predicted_array, average='weighted')
             val_f1 = f1_score(test_mask_array, test_predicted_array)
             test_jaca.append(test_jac)
             test_f1_arr.append(val_f1)
-            test_iou.append(iou.item())
+            test_iou.append(iou)
             test_bbox_loss.append(bboxes_loss.data.item())
 
     print("-----------------------Testing Metrics-------------------------------------------")
@@ -131,13 +131,13 @@ def evaluate_color_on_data(test_loader, model, device, loss_criterion, model_nam
             target_segmentation = torch.argmax(segmask, 1)
             test_mask_array = np.array(mask.cpu()).ravel()
             test_predicted_array = np.array(target_segmentation.cpu().ravel())
-            iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
+            iou =  np.mean(jaccard_score(test_mask_array, test_predicted_array, average=None))
             #  print(round(iou.item(),3),"iou")
             test_jac = jaccard_score(test_mask_array, test_predicted_array, average='weighted')
             val_f1 = f1_score(test_mask_array, test_predicted_array)
             test_jaca.append(test_jac)
             test_f1_arr.append(val_f1)
-            test_iou.append(iou.item())
+            test_iou.append(iou)
             test_bbox_loss.append(bboxes_loss.data.item())
 
     print("-----------------------Testing Metrics-------------------------------------------")
@@ -215,12 +215,14 @@ def evaluate_denoising(test_loader, model, device, loss_criterion, model_name=""
 
             test_bbox_loss.append(bboxes_loss.data.item())
             target_segmentation = torch.argmax(segmask, 1)
-            iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
-            test_iou.append(iou.item())
+            
             test_denoise_loss.append(denoise_loss.data.item())
 
             mask_array = np.array(mask.cpu()).ravel()
             predicted_array = np.array(target_segmentation.cpu()).ravel()
+
+            iou =  np.mean(jaccard_score(mask_array,predicted_array, average=None))
+            test_iou.append(iou)
 
             # print(jaccard_score(mask_array,predicted_array,average='weighted'),'skjac segmentation')
             # print(jaccard_score(denoise_pred_array,denoised_target_array,average='weighted'),'denoising segmentation')
@@ -317,12 +319,14 @@ def evaluate_opencv_filters(test_loader, model, device, loss_criterion, model_na
 
             test_bbox_loss.append(bboxes_loss.data.item())
             target_segmentation = torch.argmax(segmask, 1)
-            iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
-            test_iou.append(iou.item())
+           
+          
             test_filter_loss.append(filters_loss.data.item())
 
             mask_array = np.array(mask.cpu()).ravel()
             predicted_array = np.array(target_segmentation.cpu()).ravel()
+            iou =  np.mean(jaccard_score(mask_array, predicted_array, average=None))
+            test_iou.append(iou.item())
 
             test_jac = jaccard_score(mask_array, predicted_array, average='weighted')
             test_f1 = f1_score(mask_array, predicted_array)

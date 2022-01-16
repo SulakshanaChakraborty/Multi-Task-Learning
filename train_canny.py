@@ -2,8 +2,7 @@ import sys
 import torch
 import numpy as np
 import time
-from metrics import eval_metrics, jaccard_index
-# from sklearn.metrics import jaccard_score, f1_score
+from sklearn.metrics import jaccard_score
 import pt_networks.segnet
 import torch.optim as optim
 from datetime import datetime
@@ -110,8 +109,10 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
             # Segmentation metrics.
             target_segmentation = torch.argmax(segmask, 1)
-            iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
-            train_iou.append(iou.item())
+            mask_array=np.array(mask.cpu()).ravel()
+            predicted_array=np.array(target_segmentation.cpu().ravel())
+            iou = np.mean(jaccard_score(mask_array, predicted_array, average=None))
+            train_iou.append(iou)
             print(f'Minibatch IOU: {train_iou[i - 1]}')
 
             # Opencv filter metrics
@@ -171,8 +172,12 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
 
                 # Segmentation metrics
                 target_segmentation = torch.argmax(segmask, 1)
-                iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
-                print(f'Validation IOU: {iou.item():.3f}')
+
+                mask_array=np.array(mask.cpu()).ravel()
+                predicted_array=np.array(target_segmentation.cpu().ravel())
+                iou = np.mean(jaccard_score(mask_array, predicted_array, average=None))
+               # iou = (eval_metrics(mask.cpu(), target_segmentation.cpu(), 2))
+               # print(f'Validation IOU: {iou:.3f}')
 
                 # val_jac = jaccard_score(mask_array, predicted_array, average='weighted')
                 # val_f1 = f1_score(mask_array, predicted_array)
@@ -180,7 +185,7 @@ def train_model(model_type, train_loader, validation_loader, model, optimizer, l
                 # val_jaca.append(val_jac)
                 # val_f1_arr.append(val_f1)
 
-                val_iou.append(iou.item())
+                val_iou.append(iou)
                 val_bbox_loss.append(bboxes_loss.data.item())
 
         # Store performance per epoch
