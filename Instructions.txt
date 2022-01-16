@@ -55,7 +55,9 @@ following is the list of model type:
 
 'MTL-Attention-with-denoising': MTL Attention model with added self-supervised task of denoising, with pre-trained weights in encoder
 
-Please Note: Before running the 'MTL-Attention-with-colorization' model an additional colorisation script lab_loader.py has to be run. This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
+Please Note: 
+-----------
+Before running the 'MTL-Attention-with-colorization' model an additional colorisation script lab_loader.py has to be run. This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
 
 
 
