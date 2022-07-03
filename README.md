@@ -4,7 +4,7 @@
 
 * Clone the repository
 * Create an enviroment using the requirements.txt file
-* To run inference on the MTL-attention model run : **cw2_main.py -ts 'y'**
+* To run inference on the MTL-attention model run : cw2_main.py -ts 'y'
 
 For further deatils on training and running inference on different pre-trained models, please refer to instructions.txt.
 
