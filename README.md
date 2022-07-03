@@ -1,4 +1,4 @@
-## Enhancing Multi-Task Learning for Image Segmentation using soft-attention blocks and supervised auxiliary tasks 
+## Multi-Task Learning
 
 ####  For running the code
 
