@@ -1,58 +1,41 @@
 ## Enhancing Multi-Task Learning for Image Segmentation using soft-attention blocks and supervised auxiliary tasks 
 
-Instructions for running the code:
-------------------------------------------------------------
-Folder Structure:
+####  For setting up the environment
 
-- The MTL folder structure consists of files: Instructions.txt, attention.py, cw2_main.py,
-data_loader_canny.py, denoising_loader.py, displaying.py, generate_noisy_data.py, lab_loader.py,
-load_data.py, losses.py, losses_denoising.py, metrics.py, model_utils.py, save_lab_images.py,
-test_model.py, train_canny.py, train_color.py, train_denoising.py, train_model.py and pt_networks
-subfolder. 
-The pt_networks subfolder contains the networks for used to create the trained models.
+* Clone the repository
+* Create an enviroment using the requirements.txt file
 
-The data subfolder is where the data is placed - 
+#### For Running Inference 
 
-the train data is in data\train
-the validation data is in data\val
-the hold out test data is in data\test
-----------------------------------------------------------------------------------------------
-Running the experiments:
+run **cw2_main.py -ts 'y'**
 
-Command line arguments:
-'-m'  : model type to experiment on (deafult is set to 'MTL-Attention')
-'-e'  : number of epochs (default 30)
-'-b'  : mini batch size (default 5)
-'-tr' : 'y' (yes) or 'n' (no) for training the model (default is 'n')
-'-ts' : 'y' (yes) or 'n' (no) for testing the model (default is 'y')
-'-d'  : 'cpu' or 'cuda' device to run the code on
+This would result in running the default MTL-Attention model, to run other pretrained model pass the model name as shown:
 
-Examples for experimenting with other different models:
-python cw2_main.py -m 'MTL-Segnet' -d 'cpu' -e '50' -b '10' -tr 'y' -ts 'n'
+'-m'  : model type (deafult is set to 'MTL-Attention') <br>
 
-following is the list of model type:
+The different pre-trained models present are:
 
-'Segnet-1task-untrained' : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
+* **'Segnet-1task-untrained'** : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
 
-'MTL-Segnet-untrained' : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
+* **'MTL-Segnet-untrained'** : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
 
-'Segnet-1task': Vanilla Segnet model which outputs the segmentaion mask,with pre-trained weights in encoder
+* **'Segnet-1task'** : Vanilla Segnet model which outputs the segmentaion mask,with pre-trained weights in encoder
 
-'MTL-Segnet': Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, with pre-trained weights in encoder
+* **'MTL-Segnet'** : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, with pre-trained weights in encoder
 
-'MTL-Attention' : Soft Attention masks applied to the MTL Segnet model, with pre-trained weights in encoder
+* **'MTL-Attention'** : Soft Attention masks applied to the MTL Segnet model, with pre-trained weights in encoder
 
-'MTL-Attention-without-classification': MTL Attention model with only Bounding Box Regression and Segmentaion, with pre-trained weights in encoder
+* **'MTL-Attention-without-classification'** : MTL Attention model with only Bounding Box Regression and Segmentaion, with pre-trained weights in encoder
 
-'MTL-Attention-without-bbox': MTL Attention model with only Bounding Box Regression and Segmentaion, with pre-trained weights in encoder
+* **'MTL-Attention-without-bbox'** : MTL Attention model with only Bounding Box Regression and Segmentaion, with pre-trained weights in encoder
 
-'MTL-Attention-with-colorization': MTL Attention model with added self-supervised task of colorization, with pre-trained weights in encoder
+* **'MTL-Attention-with-colorization'** : MTL Attention model with added self-supervised task of colorization, with pre-trained weights in encoder
 
-'MTL-Attention-with-canny': MTL Attention model with added self-supervised task of canny edge detection, with pre-trained weights in encoder
+* **'MTL-Attention-with-canny'**: MTL Attention model with added self-supervised task of canny edge detection, with pre-trained weights in encoder
 
-'MTL-Attention-with-denoising': MTL Attention model with added self-supervised task of denoising, with pre-trained weights in encoder
+* **'MTL-Attention-with-denoising'** : MTL Attention model with added self-supervised task of denoising, with pre-trained weights in encoder
 
-Please Note: Before running the 'MTL-Attention-with-colorization' model an additional colorisation script lab_loader.py has to be run. This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
+❗Please Note: Before running the 'MTL-Attention-with-colorization' model an additional colorisation script lab_loader.py has to be run. This script converts the RGB colour images to the LAB colour images. This file must be ran before the running of cw2_main.py and training/testing of a model.  
 
 
 
@@ -64,7 +47,15 @@ which should be kept constant in the cw2_main.py file as they are hard coded thr
 files (ie: 'data/train/' for training, 'data/validation/' for the validation and 'data/test/' for testing data.)
 
 ---------------------------------------------------------------------------------------------------------------
-Training:
+#### For training models
+
+run **cw2_main.py -tr 'y'**
+
+: <br>
+'-m'  : model type (deafult is set to 'MTL-Attention') <br>
+'-e'  : number of epochs (default 30)<br>
+'-b'  : mini batch size (default 5)<br>
+'-d'  : 'cpu' or 'cuda' device to run the code on<br>
 
 - To train the default model with the other arguments set to the defaults, a user has to type 
 'cw2_main.py -tr y' in the terminal. The default setting for the model is 'MTL-Attention' and this
