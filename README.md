@@ -1,41 +1,7 @@
-## Enhancing Multi-Task Learning for Image Segmentation using soft-attention blocks and self-supervised auxiliary tasks 
+## Enhancing Multi-Task Learning for Image Segmentation using soft-attention blocks and supervised auxiliary tasks 
 
-Running Instructions 
-
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
- 
-@michalpaw18 
-ArnabPushilal
-/
-MLT
-Private
-Code
-Issues
-Pull requests
-Actions
-Projects
-Security
-Insights
-MLT/Instructions.txt
-@michalpaw18
-michalpaw18 Update Instructions.txt
-Latest commit 7d23f72 17 minutes ago
- History
- 1 contributor
-96 lines (64 sloc)  4.72 KB
-   
 Instructions for running the code:
-
-- Note customisation of the execution of the program takes place in the terminal, instead of
-manually changing the main repository file. For this purpose, an ArgumentParser was utilised to
-have command line arguments during the running of the program in the terminal. The information in
-this document primarily focusses on the cw2_main.py file of the repository.
------------------------------------------------------------------------------------------
+------------------------------------------------------------
 Folder Structure:
 
 - The MTL folder structure consists of files: Instructions.txt, attention.py, cw2_main.py,
