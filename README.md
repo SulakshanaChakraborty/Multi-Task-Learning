@@ -5,7 +5,7 @@ This repo contains the code, data and pretrained models for "Enhancing Multi Tas
 The motivation was to check the effectiveness of various MTL architecture against the baseline SegNet model. MTL model with auxilary tasks of Boundary box detection and Classification was implemented. Attention masks were added to the MTL model (MTAN). Experiments were carried out by adding attention masks and additional self-supervised auxilary tasks of edge detection, colourisation and denosing.
 
 <img src="MTAN.jpeg" alt="drawing" width="200" height = 400 title = "MTAN model architecture"/>
-![MTAN model architecture](MTAN.jpeg width = 600, height = 400)
+![MTAN model architecture](MTAN.jpeg width = 1200, height = 1000)
 
 
 ####  Steps to run the code
