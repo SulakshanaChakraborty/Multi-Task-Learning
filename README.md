@@ -1,4 +1,4 @@
-## Multi-Task Learning for Image Segmentation using attention blocks
+# Multi-Task Learning for Image Segmentation using attention blocks
 
 This repo contains the code, data and pretrained models for "Enhancing Multi Task Learning for Image Segmentaion using soft attention blocks and self-supervised auxilary tasks.  <br>
 
@@ -9,12 +9,19 @@ The motivation was to check the effectiveness of various MTL architecture agains
 <img src="MTAN.jpeg" alt="drawing" width="600" height = "300"/>
 </p>
 
-
-
-####  Steps to run the code
-## Set up environment 
+### Set up environment 
 * Clone the repository
 * Create an enviroment using the requirements.txt file
+
+### Run Inference/Traing
+
+Inference:
+```python 
+python cw2_main.py -m 'MTL-Segnet' -d 'cpu' -e '50' -b '10' -tr 'y' -ts 'n'
+```
+F refere to instructions.txt 
+
+### Dataset 
 
 * To run inference on the MTL-attention model run : cw2_main.py -ts 'y'
 
