@@ -9,17 +9,14 @@ The motivation was to check the effectiveness of various MTL architecture agains
 <img src="MTAN.jpeg" alt="drawing" width="600" height = "300"/>
 </p>
 
-### Set up environment 
+### Run the code
 * Clone the repository
 * Create an enviroment using the requirements.txt file
-
-### Run Inference/Traing
-
-Inference:
+* Run Inference:
 ```python 
 python cw2_main.py -m 'MTL-Segnet' -d 'cpu' -e '50' -b '10' -tr 'y' -ts 'n'
 ```
-F refere to instructions.txt 
+Plese refere to instructions.txt for further detailed instructions on running training/inference.
 
 ### Dataset 
 
