@@ -1,6 +1,6 @@
 # Multi-Task Learning for Image Segmentation using attention blocks
 
-This repo contains the code, data and pretrained models for "Enhancing Multi Task Learning for Image Segmentaion using soft attention blocks and self-supervised auxilary tasks.  <br>
+This repo contains the code for "Enhancing Multi Task Learning for Image Segmentaion using soft attention blocks and self-supervised auxilary tasks.  <br>
 
 The motivation was to check the effectiveness of various MTL architecture against the baseline SegNet model. MTL model with auxilary tasks of Boundary box detection and Classification was implemented. Attention masks were added to the MTL model (MTAN). Experiments were carried out by adding attention masks and additional self-supervised auxilary tasks of edge detection, colourisation and denosing. The full report can be viewed [here](https://github.com/SulakshanaChakraborty/Multi-Task-Learning/blob/main/MTL-Report.pdf).
 
