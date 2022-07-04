@@ -12,13 +12,13 @@ The motivation was to check the effectiveness of various MTL architecture agains
 ## How to run the code
 
 * Clone the repository
-* Create an enviroment using the requirements.txt file
+* Create an enviroment using the [requirements.txt](https://github.com/SulakshanaChakraborty/Multi-Task-Learning/blob/main/requirements.txt) file
 * Run Inference:
 
 ```python 
 python cw2_main.py -m 'MTL-Segnet' -d 'cpu' -e '50' -b '10' -tr 'y' -ts 'n'
 ```
-Plese refere to instructions.txt for further detailed instructions on running training/inference.
+Plese refere to [instructions.txt](https://github.com/SulakshanaChakraborty/Multi-Task-Learning/blob/main/Instructions.txt) for further detailed instructions on running training/inference.
 
 ### Dataset 
 
