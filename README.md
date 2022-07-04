@@ -49,20 +49,11 @@ The dataset can be downloaded from [here](s). Please maintain the following fold
 ```
 data
 │  
-└──Test
-│   │   bboxes.h5
-│   │   binary.h5
-│   │   ....
+└──test
 │   
-└───Train
-│   │   bboxes.h5
-│   │   binary.h5
-│   │   ....
+└───train
 |
 └───val
-    │   bboxes.h5
-    │   binary.h5
-    │   ....
 ```
 
 
