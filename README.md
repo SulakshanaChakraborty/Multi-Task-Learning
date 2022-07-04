@@ -22,7 +22,7 @@ Plese refere to [instructions.txt](https://github.com/SulakshanaChakraborty/Mult
 
 ## Pretrained models
 
-The pretrained models can be downloaded from ##TODO link to be added. Following is the list of different models:
+The pretrained models can be downloaded from ##TODO add link. Following is the list of different models:
 
 * **Segnet-1task-no-pretrained** : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
 
