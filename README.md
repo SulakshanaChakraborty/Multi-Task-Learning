@@ -20,9 +20,31 @@ python cw2_main.py -m 'MTL-Segnet' -d 'cpu' -e '50' -b '10' -tr 'y' -ts 'n'
 ```
 Plese refere to [instructions.txt](https://github.com/SulakshanaChakraborty/Multi-Task-Learning/blob/main/Instructions.txt) for further detailed instructions on running training/inference.
 
-### Dataset 
+## Pretrained models
 
-* To run inference on the MTL-attention model run : cw2_main.py -ts 'y'
+The pretrained models can be downloaded from [here]. Following is the list of different models:
+
+* **'Segnet-1task-no-pretrained'** : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
+
+* **'MTL-Segnet-no-pretrained'** : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
+
+* **'Segnet-1task'**: Vanilla Segnet model which outputs the segmentaion mask,with pre-trained weights in encoder
+
+* **'MTL-Segnet'**: Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, with pre-trained weights in encoder
+
+* **'MTL-Attention'** : Soft Attention masks applied to the MTL Segnet model, with pre-trained weights in encoder
+
+* **'MTL-Attention-without-classification'**: MTL Attention model with only Bounding Box Regression and Segmentaion, with pre-trained weights in encoder
+
+* **'MTL-Attention-without-bbox'**: MTL Attention model with only Bounding Box Regression and Segmentaion, with pre-trained weights in encoder
+
+* **'MTL-Attention-with-colorization'**: MTL Attention model with added self-supervised task of colorization, with pre-trained weights in encoder
+
+* **'MTL-Attention-with-canny'**: MTL Attention model with added self-supervised task of canny edge detection, with pre-trained weights in encoder
+
+* **'MTL-Attention-with-denoising'**: MTL Attention model with added self-supervised task of denoising, with pre-trained weights in encoder
+
+## Dataset
 
 For further deatils on training and running inference on different pre-trained models, please refer to instructions.txt.
 
