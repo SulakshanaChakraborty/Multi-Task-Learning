@@ -45,18 +45,7 @@ The pretrained models can be downloaded from ##TODO add link. Following is the l
 * **MTL-Attention-with-denoising**: MTL Attention model with added self-supervised task of denoising, with pre-trained weights in encoder
 
 ## Dataset
-The dataset can be downloaded from [here](s). Please maintain the following folder structure:
-```
-data
-│  
-└──test
-│   
-└───train
-|
-└───val
-```
-
-
+The dataset can be downloaded from [here](s). Please maintain the following folder structure as present in the zip file.
 
 © 2022 GitHub, Inc.
 Terms
