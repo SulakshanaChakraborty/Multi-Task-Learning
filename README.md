@@ -27,8 +27,6 @@ The pretrained models can be downloaded from ##TODO add link. Following is the l
 * **Segnet-1task-no-pretrained** : Vanilla Segnet model which outputs the segmentation mask, without any pre-trained weights
 
 * **MTL-Segnet-no-pretrained** : Multi-task learning Segnet model with Bounding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
-## References
-
 
 * **Segnet-1task**: Vanilla Segnet model which outputs the segmentation mask,with pre-trained weights in the encoder
 
