@@ -2,7 +2,7 @@
 
 This repo contains the code for "Enhancing Multi Task Learning for Image Segmentaion using soft attention blocks and self-supervised auxilary tasks.  <br>
 
-The motivation was to check the effectiveness of various MTL architecture against the baseline SegNet model. MTL model with auxilary tasks of Boundary box detection and Classification was implemented. Attention masks were added to the MTL model (MTAN). Experiments were carried out by adding attention masks and additional self-supervised auxilary tasks of edge detection, colourisation and denosing. The full report can be viewed [here](https://github.com/SulakshanaChakraborty/Multi-Task-Learning/blob/main/MTL-Report.pdf).
+The motivation was to check the effectiveness of various MTL architecture against the baseline SegNet model. MTL model with auxilary tasks of Boundary box detection and Classification was implemented. Attention masks were added to the MTL model (MTAN) [1]. Experiments were carried out by adding attention masks and additional self-supervised auxilary tasks of edge detection, colourisation and denosing. The full report can be viewed [here](https://github.com/SulakshanaChakraborty/Multi-Task-Learning/blob/main/MTL-Report.pdf).
 
 ### MTAN model architecture
 <p>
@@ -27,6 +27,8 @@ The pretrained models can be downloaded from ##TODO add link. Following is the l
 * **Segnet-1task-no-pretrained** : Vanilla Segnet model which outputs the segmentaion mask, without any pre-trained weights
 
 * **MTL-Segnet-no-pretrained** : Multi task learning Segnet model with Bouding Box Regression, Segmentation and Classification tasks, without any pre-trained weights
+## References
+
 
 * **Segnet-1task**: Vanilla Segnet model which outputs the segmentaion mask,with pre-trained weights in encoder
 
@@ -46,6 +48,10 @@ The pretrained models can be downloaded from ##TODO add link. Following is the l
 
 ## Dataset
 The dataset can be downloaded from [here](s). Please maintain the following folder structure as present in the zip file.
+
+## Refernces
+[1] Shikun Liu, Edward Johns, and Andrew J Davison. End-to-end multi-task learning with attention. In Proceedings of the IEEE/CVF Conference on Computer Vision
+and Pattern Recognition, pages 1871–1880, 2019.
 
 © 2022 GitHub, Inc.
 Terms
